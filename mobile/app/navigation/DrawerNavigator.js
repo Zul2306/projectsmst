@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Alert } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import DashboardScreen from "../screens/DashboardScreen";
@@ -34,6 +34,30 @@ function CustomDrawerContent({ navigation, state }) {
     { name: "Education", icon: "book-outline", title: "Education" },
   ];
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Konfirmasi Logout",
+      "Apakah Anda yakin ingin keluar?",
+      [
+        {
+          text: "Batal",
+          style: "cancel",
+        },
+        {
+          text: "Keluar",
+          style: "destructive",
+          onPress: () => {
+            // Reset navigation ke Auth screen
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Auth" }],
+            });
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.drawerContainer}>
       <View style={styles.drawerHeader}>
@@ -56,6 +80,13 @@ function CustomDrawerContent({ navigation, state }) {
           ))}
         </View>
       </ScrollView>
+
+      <View style={styles.drawerFooter}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color={colors.danger} />
+          <Text style={styles.logoutText}>Keluar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -99,5 +130,25 @@ const styles = StyleSheet.create({
   },
   menuSection: {
     marginBottom: 20,
+  },
+  drawerFooter: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: `${colors.danger}10`,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  logoutText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.danger,
+    marginLeft: 12,
   },
 });
