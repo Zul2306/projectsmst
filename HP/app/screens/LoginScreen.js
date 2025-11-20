@@ -11,7 +11,7 @@ import {
 	Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import colors from "../utils/colors";
+import colors from "../../../../projectsmst/HP/app/utils/colors";
 
 export default function LoginScreen({ onNavigate, onLogin }) {
 	const [username, setUsername] = useState("");

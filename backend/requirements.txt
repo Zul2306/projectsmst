@@ -1,7 +1,8 @@
 fastapi
 uvicorn[standard]
-sqlalchemy
+SQLAlchemy
 pymysql
-passlib[bcrypt]
-python-jose[cryptography]
 python-dotenv
+argon2-cffi
+PyJWT
+pydantic
