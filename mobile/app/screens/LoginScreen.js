@@ -12,20 +12,47 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../utils/colors";
+import API_URL from "../utils/api";
 
-export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState("");
+export default function LoginScreen({ onNavigate, onLogin }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert("Error", "Mohon lengkapi semua field");
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Email dan password harus diisi");
       return;
     }
 
-    // Simulasi login - dalam aplikasi real, lakukan validasi ke backend
-    navigation.replace("Main");
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert("Login Gagal", data.detail || "Terjadi kesalahan");
+        return;
+      }
+
+      // simpan token
+      const token = data.access_token;
+
+      Alert.alert("Berhasil", "Login berhasil!");
+      onLogin && onLogin(token);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Tidak dapat terhubung ke server");
+    }
   };
 
   return (
@@ -41,15 +68,15 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.iconContainer}>
             <Ionicons name="medical" size={50} color={colors.primary} />
           </View>
-          <Text style={styles.title}>Masuk</Text>
+          <Text style={styles.title}>Selamat Datang</Text>
           <Text style={styles.subtitle}>
-            Selamat datang kembali! Masuk untuk melanjutkan
+            Masuk untuk melanjutkan ke aplikasi
           </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>Email</Text>
             <View style={styles.inputContainer}>
               <Ionicons
                 name="person-outline"
@@ -59,9 +86,9 @@ export default function LoginScreen({ navigation }) {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Masukkan username"
-                value={username}
-                onChangeText={setUsername}
+                placeholder="Masukkan Email"
+                value={email}
+                onChangeText={setEmail}
                 autoCapitalize="none"
               />
             </View>
@@ -77,16 +104,13 @@ export default function LoginScreen({ navigation }) {
                 style={styles.inputIcon}
               />
               <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Masukkan password"
+                style={styles.input}
+                placeholder="Masukkan Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
@@ -96,8 +120,8 @@ export default function LoginScreen({ navigation }) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Lupa password?</Text>
+          <TouchableOpacity onPress={() => onNavigate && onNavigate("forgot")}>
+            <Text style={styles.forgotText}>Lupa Password?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
@@ -106,7 +130,9 @@ export default function LoginScreen({ navigation }) {
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Belum punya akun? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            <TouchableOpacity
+              onPress={() => onNavigate && onNavigate("register")}
+            >
               <Text style={styles.registerLink}>Daftar</Text>
             </TouchableOpacity>
           </View>
@@ -181,21 +207,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text,
   },
-  passwordInput: {
-    paddingRight: 40,
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 16,
-    padding: 4,
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
+  forgotText: {
     color: colors.primary,
+    textAlign: "right",
+    marginBottom: 24,
     fontWeight: "600",
   },
   loginButton: {

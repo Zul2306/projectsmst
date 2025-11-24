@@ -12,8 +12,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../utils/colors";
+import API_URL from "../utils/api";
 
-export default function RegisterScreen({ navigation }) {
+export default function RegisterScreen({ onNavigate, onLogin }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -21,64 +22,45 @@ export default function RegisterScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
-  const handleRegister = () => {
-    setErrorMessage("");
-
-    // Validasi semua field harus diisi
-    if (
-      !fullName.trim() ||
-      !email.trim() ||
-      !username.trim() ||
-      !password.trim() ||
-      !confirmPassword.trim()
-    ) {
-      setErrorMessage("Mohon lengkapi semua field");
+  const handleRegister = async () => {
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      Alert.alert("Error", "Semua field harus diisi");
       return;
     }
 
-    // Validasi email
-    if (!validateEmail(email)) {
-      setErrorMessage("Format email tidak valid");
-      return;
-    }
-
-    // Validasi password
-    if (password.length < 6) {
-      setErrorMessage("Password minimal 6 karakter");
-      return;
-    }
-
-    // Validasi konfirmasi password
     if (password !== confirmPassword) {
-      setErrorMessage("Password tidak cocok");
+      Alert.alert("Error", "Password tidak cocok");
       return;
     }
 
-    // Validasi persetujuan syarat
-    if (!agreeTerms) {
-      setErrorMessage("Saya menyetujui syarat dan ketentuan");
-      return;
-    }
-
-    // Simulasi registrasi - dalam aplikasi real, kirim data ke backend
-    Alert.alert(
-      "Berhasil",
-      "Akun berhasil dibuat! Silakan login.",
-      [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Login"),
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ]
-    );
+        body: JSON.stringify({
+          name: fullName,
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert("Register Gagal", data.detail || "Terjadi kesalahan");
+        return;
+      }
+
+      Alert.alert("Sukses", "Akun berhasil dibuat!", [
+        { text: "OK", onPress: () => onLogin && onLogin() },
+      ]);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Tidak dapat terhubung ke server");
+    }
   };
 
   return (
@@ -91,12 +73,6 @@ export default function RegisterScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
           <Text style={styles.title}>Daftar</Text>
           <Text style={styles.subtitle}>
             Buat akun baru untuk memulai perjalanan kesehatan Anda
@@ -171,16 +147,13 @@ export default function RegisterScreen({ navigation }) {
                 style={styles.inputIcon}
               />
               <TextInput
-                style={[styles.input, styles.passwordInput]}
+                style={styles.input}
                 placeholder="Masukkan password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
@@ -200,7 +173,7 @@ export default function RegisterScreen({ navigation }) {
                 style={styles.inputIcon}
               />
               <TextInput
-                style={[styles.input, styles.passwordInput]}
+                style={styles.input}
                 placeholder="Konfirmasi password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -208,7 +181,6 @@ export default function RegisterScreen({ navigation }) {
               />
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={styles.eyeIcon}
               >
                 <Ionicons
                   name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
@@ -220,40 +192,15 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            style={styles.checkboxContainer}
-            onPress={() => setAgreeTerms(!agreeTerms)}
-          >
-            <View
-              style={[
-                styles.checkbox,
-                agreeTerms && styles.checkboxChecked,
-              ]}
-            >
-              {agreeTerms && (
-                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-              )}
-            </View>
-            <Text style={styles.checkboxText}>
-              Saya menyetujui syarat dan ketentuan
-            </Text>
-          </TouchableOpacity>
-
-          {errorMessage !== "" && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
-          )}
-
-          <TouchableOpacity
             style={styles.registerButton}
             onPress={handleRegister}
           >
-            <Text style={styles.registerButtonText}>Register</Text>
+            <Text style={styles.registerButtonText}>Daftar</Text>
           </TouchableOpacity>
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Sudah punya akun? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={() => onNavigate && onNavigate("login")}>
               <Text style={styles.loginLink}>Masuk</Text>
             </TouchableOpacity>
           </View>
@@ -270,21 +217,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: "center",
     paddingHorizontal: 24,
-    paddingTop: 50,
-    paddingBottom: 40,
+    paddingVertical: 40,
   },
   header: {
     marginBottom: 32,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.card,
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
   },
   title: {
     fontSize: 28,
@@ -295,6 +234,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: colors.textLight,
+    textAlign: "center",
   },
   form: {
     width: "100%",
@@ -326,55 +266,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text,
   },
-  passwordInput: {
-    paddingRight: 40,
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 16,
-    padding: 4,
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: colors.border,
-    marginRight: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  checkboxText: {
-    fontSize: 13,
-    color: colors.text,
-  },
-  errorContainer: {
-    backgroundColor: `${colors.danger}15`,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorText: {
-    fontSize: 13,
-    color: colors.danger,
-    textAlign: "center",
-  },
   registerButton: {
     backgroundColor: colors.primary,
     borderRadius: 12,
     height: 52,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 8,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

@@ -1,23 +1,18 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import colors from "../utils/colors";
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import colors from '../utils/colors';
 
-export default function EducationScreen({ navigation }) {
+export default function EducationScreen() {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Ionicons name="menu" size={28} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Education</Text>
-        <View style={{ width: 28 }} />
-      </View>
       <View style={styles.content}>
-        <Ionicons name="book-outline" size={64} color={colors.primary} />
-        <Text style={styles.placeholder}>Edukasi</Text>
-        <Text style={styles.description}>
-          Pelajari lebih lanjut tentang diabetes dan cara pencegahannya
+        <View style={styles.iconContainer}>
+          <Ionicons name="book-outline" size={80} color={colors.primary} />
+        </View>
+        <Text style={styles.title}>Education</Text>
+        <Text style={styles.subtitle}>
+          Informasi dan edukasi tentang diabetes dan gaya hidup sehat
         </Text>
       </View>
     </View>
@@ -28,37 +23,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
-    backgroundColor: colors.card,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
   content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
+    alignItems: 'center',
   },
-  placeholder: {
-    fontSize: 20,
-    fontWeight: "600",
+  iconContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: `${colors.primary}15`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.text,
-    marginTop: 16,
+    marginBottom: 12,
   },
-  description: {
-    fontSize: 14,
+  subtitle: {
+    fontSize: 15,
     color: colors.textLight,
-    textAlign: "center",
-    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
