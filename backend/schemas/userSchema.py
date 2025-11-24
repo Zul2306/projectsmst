@@ -13,6 +13,11 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)  # pengganti orm_mode=True
 

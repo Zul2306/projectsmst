@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../utils/colors';
 
-export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen }) {
+export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen, user }) {
   const items = [
     { key: 'Dashboard', label: 'Dashboard', icon: 'grid-outline' },
     { key: 'Classification', label: 'Klasifikasi', icon: 'create-outline' },
@@ -14,7 +14,8 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Profile Card - Clickable */}
+        
+        {/* Profile Card */}
         <TouchableOpacity 
           style={styles.profileCard}
           onPress={() => {
@@ -26,13 +27,16 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen 
           <View style={styles.avatar}>
             <Ionicons name="person" size={28} color={colors.primary} />
           </View>
+
           <View style={{ marginLeft: 12, flex: 1 }}>
-            <Text style={styles.name}>John Doe</Text>
-            <Text style={styles.email}>john@example.com</Text>
+            <Text style={styles.name}>{user?.name || "User"}</Text>
+            <Text style={styles.email}>{user?.email || "-"}</Text>
           </View>
+
           <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
         </TouchableOpacity>
 
+        {/* Menu Items */}
         <View style={styles.menuList}>
           {items.map((it) => (
             <TouchableOpacity
@@ -53,22 +57,26 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen 
                   color={currentScreen === it.key ? colors.primary : colors.text} 
                 />
               </View>
-              <Text style={[
-                styles.menuLabel,
-                currentScreen === it.key && styles.menuLabelActive
-              ]}>
+              <Text
+                style={[
+                  styles.menuLabel,
+                  currentScreen === it.key && styles.menuLabelActive
+                ]}
+              >
                 {it.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Logout */}
         <View style={styles.footer}>
           <TouchableOpacity style={styles.logoutButton} onPress={() => onLogout && onLogout()}>
             <Ionicons name="log-out-outline" size={20} color={colors.danger} style={{ marginRight: 8 }} />
             <Text style={styles.logoutText}>Keluar</Text>
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     </View>
   );
