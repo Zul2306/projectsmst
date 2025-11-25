@@ -180,10 +180,7 @@ export default function ProfileScreen({ onLogout }) {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.avatarLarge}>
@@ -197,15 +194,8 @@ export default function ProfileScreen({ onLogout }) {
       <View style={styles.bmiCard}>
         <Text style={styles.bmiLabel}>Body Mass Index (BMI)</Text>
         <Text style={styles.bmiValue}>{bmi}</Text>
-        <View
-          style={[
-            styles.bmiCategory,
-            { backgroundColor: `${bmiCategory.color}15` },
-          ]}
-        >
-          <Text style={[styles.bmiCategoryText, { color: bmiCategory.color }]}>
-            {bmiCategory.text}
-          </Text>
+        <View style={[styles.bmiCategory, { backgroundColor: `${bmiCategory.color}15` }]}>
+          <Text style={[styles.bmiCategoryText, { color: bmiCategory.color }]}>{bmiCategory.text}</Text>
         </View>
       </View>
 
@@ -215,11 +205,7 @@ export default function ProfileScreen({ onLogout }) {
           <Text style={styles.formTitle}>Informasi Profile</Text>
           {!isEditing && (
             <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-              <Ionicons
-                name="create-outline"
-                size={20}
-                color={colors.primary}
-              />
+              <Ionicons name="create-outline" size={20} color={colors.primary} />
               <Text style={styles.editButtonText}>Edit</Text>
             </TouchableOpacity>
           )}
@@ -231,9 +217,7 @@ export default function ProfileScreen({ onLogout }) {
             <TextInput
               style={styles.input}
               value={editedProfile.name}
-              onChangeText={(text) =>
-                setEditedProfile({ ...editedProfile, name: text })
-              }
+              onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
             />
           ) : (
             <Text style={styles.value}>{profile.name}</Text>
@@ -251,9 +235,7 @@ export default function ProfileScreen({ onLogout }) {
             <TextInput
               style={styles.input}
               value={editedProfile.weight}
-              onChangeText={(text) =>
-                setEditedProfile({ ...editedProfile, weight: text })
-              }
+              onChangeText={(text) => setEditedProfile({ ...editedProfile, weight: text })}
               keyboardType="decimal-pad"
             />
           ) : (
@@ -267,9 +249,7 @@ export default function ProfileScreen({ onLogout }) {
             <TextInput
               style={styles.input}
               value={editedProfile.height}
-              onChangeText={(text) =>
-                setEditedProfile({ ...editedProfile, height: text })
-              }
+              onChangeText={(text) => setEditedProfile({ ...editedProfile, height: text })}
               keyboardType="decimal-pad"
             />
           ) : (
@@ -279,22 +259,11 @@ export default function ProfileScreen({ onLogout }) {
 
         {isEditing && (
           <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleCancel}
-            >
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
               <Text style={styles.cancelButtonText}>Batal</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmit}
-              disabled={saving}
-            >
-              {saving ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.submitButtonText}>Simpan</Text>
-              )}
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={saving}>
+              {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>Simpan</Text>}
             </TouchableOpacity>
           </View>
         )}
@@ -332,113 +301,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 16,
   },
-  headerName: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
+  headerName: { fontSize: 22, fontWeight: "700", color: colors.text, marginBottom: 4 },
   headerEmail: { fontSize: 14, color: colors.textLight },
-  bmiCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 16,
-  },
+  bmiCard: { backgroundColor: colors.card, borderRadius: 16, padding: 20, alignItems: "center", marginBottom: 16 },
   bmiLabel: { fontSize: 14, color: colors.textLight, marginBottom: 8 },
-  bmiValue: {
-    fontSize: 48,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 12,
-  },
+  bmiValue: { fontSize: 48, fontWeight: "700", color: colors.text, marginBottom: 12 },
   bmiCategory: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20 },
   bmiCategoryText: { fontSize: 14, fontWeight: "600" },
-  formCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  formHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+  formCard: { backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16 },
+  formHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
   formTitle: { fontSize: 18, fontWeight: "700", color: colors.text },
-  editButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: `${colors.primary}15`,
-    borderRadius: 8,
-  },
-  editButtonText: {
-    color: colors.primary,
-    fontWeight: "600",
-    marginLeft: 4,
-    fontSize: 14,
-  },
+  editButton: { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 6, backgroundColor: `${colors.primary}15`, borderRadius: 8 },
+  editButtonText: { color: colors.primary, fontWeight: "600", marginLeft: 4, fontSize: 14 },
   formGroup: { marginBottom: 20 },
-  label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.textLight,
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
+  label: { fontSize: 13, fontWeight: "600", color: colors.textLight, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 },
   value: { fontSize: 16, color: colors.text, fontWeight: "500" },
-  input: {
-    backgroundColor: colors.background,
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    color: colors.text,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  helperText: {
-    fontSize: 12,
-    color: colors.textLight,
-    marginTop: 4,
-    fontStyle: "italic",
-  },
+  input: { backgroundColor: colors.background, borderRadius: 10, padding: 12, fontSize: 16, color: colors.text, borderWidth: 1, borderColor: colors.border },
+  helperText: { fontSize: 12, color: colors.textLight, marginTop: 4, fontStyle: "italic" },
   actionButtons: { flexDirection: "row", marginTop: 8, gap: 12 },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: colors.background,
-    padding: 14,
-    borderRadius: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
+  cancelButton: { flex: 1, backgroundColor: colors.background, padding: 14, borderRadius: 10, alignItems: "center", borderWidth: 1, borderColor: colors.border },
   cancelButtonText: { color: colors.text, fontWeight: "600", fontSize: 15 },
-  submitButton: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    padding: 14,
-    borderRadius: 10,
-    alignItems: "center",
-  },
+  submitButton: { flex: 1, backgroundColor: colors.primary, padding: 14, borderRadius: 10, alignItems: "center" },
   submitButtonText: { color: "#fff", fontWeight: "600", fontSize: 15 },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: `${colors.danger}15`,
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 8,
-  },
-  logoutText: {
-    color: colors.danger,
-    fontWeight: "600",
-    fontSize: 16,
-    marginLeft: 8,
-  },
+  logoutButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", backgroundColor: `${colors.danger}15`, padding: 16, borderRadius: 12, marginTop: 8 },
+  logoutText: { color: colors.danger, fontWeight: "600", fontSize: 16, marginLeft: 8 },
 });
