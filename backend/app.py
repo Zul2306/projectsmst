@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from config.db import engine, Base
 from routes import authRoute, indexRoute, userRoute, predictRoute
 import models.user as user_model
+import models.prediction as pred_model
 
 # Create tables if not exist (be careful in production)
 Base.metadata.create_all(bind=engine)

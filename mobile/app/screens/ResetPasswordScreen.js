@@ -13,8 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../utils/colors";
-
-const API_URL = "http://192.168.0.107:8000"; // Ganti dengan URL API Anda
+import API_URL from "../utils/api";
 
 export default function ResetPasswordScreen({ route, onNavigate }) {
 	const { email } = route.params;
