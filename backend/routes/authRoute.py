@@ -11,12 +11,12 @@ import os
 import jwt
 import random
 
-from ..config.db import SessionLocal
-from ..models.user import User as UserModel
-from ..schemas.userSchema import UserCreate, UserLogin, UserOut, Token
-from ..schemas.authSchema import ForgotPasswordSchema, VerifyOTPSchema, ResetPasswordSchema
+from config.db import SessionLocal
+from models.user import User as UserModel
+from schemas.userSchema import UserCreate, UserLogin, UserOut, Token
+from schemas.authSchema import ForgotPasswordSchema, VerifyOTPSchema, ResetPasswordSchema
 
-from ..config.mail import fm
+from config.mail import fm
 
 load_dotenv()
 

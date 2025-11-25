@@ -5,9 +5,9 @@ from decimal import Decimal
 from datetime import datetime
 from typing import Optional
 
-from ..config.db import SessionLocal
-from ..models.user import User as UserModel
-from ..schemas.userSchema import UserOut, UserUpdate
+from config.db import SessionLocal
+from models.user import User as UserModel
+from schemas.userSchema import UserOut, UserUpdate
 
 # import get_current_user yang mengembalikan objek user (dari authRoute)
 from .authRoute import get_current_user

@@ -1,6 +1,6 @@
 # backend/models/user.py
 from sqlalchemy import Column, Integer, String, DateTime, Text, DECIMAL
-from backend.config.db import Base
+from config.db import Base
 from datetime import datetime
 
 class User(Base):
