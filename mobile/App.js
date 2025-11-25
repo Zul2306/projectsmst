@@ -6,53 +6,48 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoginScreen from "./app/screens/LoginScreen";
 import RegisterScreen from "./app/screens/RegisterScreen";
 import ForgotPasswordScreen from "./app/screens/ForgotPasswordScreen";
+import VerifyOTPScreen from "./app/screens/VerifyOTPScreen";
+import ResetPasswordScreen from "./app/screens/ResetPasswordScreen";
 import MainLayout from "./app/screens/MainLayout";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("login");
-  const [token, setToken] = useState(null); // JWT token
+  const [screenParams, setScreenParams] = useState({});
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // attempt to load token from storage on app start
+  // Navigation helper:
+  const navigate = (screen, params = {}) => {
+    setCurrentScreen(screen);
+    setScreenParams(params);
+  };
+
+  // Load token at startup
   useEffect(() => {
-    const loadToken = async () => {
+    (async () => {
       try {
         const t = await AsyncStorage.getItem("token");
-        if (t) {
-          setToken(t);
-        }
+        if (t) setToken(t);
       } catch (err) {
         console.log("Failed to load token", err);
-      } finally {
-        setLoading(false);
       }
-    };
-    loadToken();
+      setLoading(false);
+    })();
   }, []);
 
   const handleLogin = async (receivedToken) => {
-    // receivedToken is expected to be the JWT string from backend
-    try {
-      await AsyncStorage.setItem("token", receivedToken);
-      setToken(receivedToken);
-      setCurrentScreen("dashboard"); // optional
-    } catch (err) {
-      console.log("Failed to save token", err);
-    }
+    await AsyncStorage.setItem("token", receivedToken);
+    setToken(receivedToken);
+    setCurrentScreen("dashboard");
   };
 
   const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("token");
-    } catch (err) {
-      console.log("Failed to remove token", err);
-    } finally {
-      setToken(null);
-      setCurrentScreen("login");
-    }
+    await AsyncStorage.removeItem("token");
+    setToken(null);
+    setCurrentScreen("login");
   };
 
-  // While loading token from storage show spinner
+  // Loading screen
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -61,28 +56,36 @@ export default function App() {
     );
   }
 
-  // If token exists -> user is logged in
+  // If logged in → dashboard
   if (token) {
     return <MainLayout token={token} onLogout={handleLogout} />;
   }
 
-  // Not logged in -> show auth screens
-  if (currentScreen === "register") {
-    // Note: RegisterScreen should call onLogin(token) if you want auto-login after register.
-    return (
-      <RegisterScreen
-        onNavigate={setCurrentScreen}
-        onLogin={(t) => handleLogin(t)} // expects token, or you can call setCurrentScreen('login')
-      />
-    );
-  } else if (currentScreen === "forgot") {
-    return <ForgotPasswordScreen onNavigate={setCurrentScreen} />;
-  } else {
-    return (
-      <LoginScreen
-        onNavigate={setCurrentScreen}
-        onLogin={(t) => handleLogin(t)} // expects token string from LoginScreen
-      />
-    );
+  // ---------- AUTH ROUTES ----------
+  switch (currentScreen) {
+    case "register":
+      return <RegisterScreen onNavigate={navigate} onLogin={handleLogin} />;
+
+    case "forgot":
+      return <ForgotPasswordScreen onNavigate={navigate} />;
+
+    case "otp":
+      return (
+        <VerifyOTPScreen
+          onNavigate={navigate}
+          route={{ params: screenParams }}
+        />
+      );
+
+    case "reset":
+      return (
+        <ResetPasswordScreen
+          onNavigate={navigate}
+          route={{ params: screenParams }}
+        />
+      );
+
+    default:
+      return <LoginScreen onNavigate={navigate} onLogin={handleLogin} />;
   }
 }
