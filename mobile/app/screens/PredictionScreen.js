@@ -218,7 +218,7 @@ export default function PredictionScreen() {
           <TextInput
             style={styles.input}
             value={formData.bmi}
-            onChangeText={(text) => setFormData({ ...formData, bmi: text })}
+            onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setFormData({ ...formData, bmi: fixed })}}
             keyboardType="decimal-pad"
           />
         </View>
@@ -229,7 +229,7 @@ export default function PredictionScreen() {
           <TextInput
             style={styles.input}
             value={formData.dpf}
-            onChangeText={(text) => setFormData({ ...formData, dpf: text })}
+            onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setFormData({ ...formData, dpf: fixed })}}
             keyboardType="decimal-pad"
           />
         </View>

@@ -26,7 +26,7 @@ ph = PasswordHasher()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "secret")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24))
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -68,18 +68,23 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(UserModel).filter(UserModel.email == payload.email).first()
     if not user:
-        raise HTTPException(401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     try:
         ph.verify(user.password, payload.password)
     except argon2_exceptions.VerifyMismatchError:
-        raise HTTPException(401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token_data = {"sub": str(user.id), "email": user.email}
-    token = jwt.encode(token_data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    # buat token dengan exp
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    token_payload = {
+        "sub": str(user.id),
+        "email": user.email,
+        "exp": expire
+    }
+    token = jwt.encode(token_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
     return {"access_token": token, "token_type": "bearer"}
-
 
 # ==============================
 # AUTH MIDDLEWARE

@@ -24,8 +24,9 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
-    height: Optional[int] = None
-    weight: Optional[int] = None
+    # ubah menjadi float agar desimal tidak hilang
+    height: Optional[float] = None
+    weight: Optional[float] = None
     bmi: Optional[Decimal] = None
     createdAt: Optional[datetime] = None
 

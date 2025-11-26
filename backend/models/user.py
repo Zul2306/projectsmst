@@ -1,5 +1,5 @@
 # backend/models/user.py
-from sqlalchemy import Column, Integer, String, DateTime, Text, DECIMAL
+from sqlalchemy import Column, Integer, String, DateTime, Text, DECIMAL, Float
 from config.db import Base
 from datetime import datetime
 
@@ -10,8 +10,8 @@ class User(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True, index=True)
     password = Column(String(255), nullable=False)
-    height = Column(Integer, nullable=True)
-    weight = Column(Integer, nullable=True)
+    height = Column(Float, nullable=True)
+    weight = Column(Float, nullable=True)
     bmi = Column(DECIMAL(5,2), nullable=True)
     resetPasswordToken = Column(Text, nullable=True)
     resetTokenExpires = Column(DateTime, nullable=True)

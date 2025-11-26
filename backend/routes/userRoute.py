@@ -28,10 +28,6 @@ def read_profile(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user),
 ):
-    """
-    Ambil profil user. Untuk menghindari masalah session, ambil ulang user dari session lokal.
-    """
-    # ambil ulang user dari session lokal (db) berdasarkan id
     user = db.get(UserModel, int(current_user.id))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -44,10 +40,6 @@ def update_profile(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user),
 ):
-    """
-    Update profil user (name, weight, height) — menggunakan instance yang berasal dari 'db' session.
-    """
-    # ambil ulang user dari session lokal (db) untuk menghindari "already attached to session"
     user: Optional[UserModel] = db.get(UserModel, int(current_user.id))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -64,13 +56,15 @@ def update_profile(
 
     # Weight
     if payload.weight is not None:
+        # accept numeric or string numeric (e.g. "70.5")
         try:
             w = float(payload.weight)
         except Exception:
             raise HTTPException(status_code=400, detail="Invalid weight value")
         if w <= 0:
             raise HTTPException(status_code=400, detail="Weight must be > 0")
-        user.weight = int(round(w))
+        # store as float (do NOT int-round)
+        user.weight = w
         updated = True
 
     # Height
@@ -81,7 +75,8 @@ def update_profile(
             raise HTTPException(status_code=400, detail="Invalid height value")
         if h <= 0:
             raise HTTPException(status_code=400, detail="Height must be > 0")
-        user.height = int(round(h))
+        # store as float (do NOT int-round)
+        user.height = h
         updated = True
 
     # Recalculate BMI if both present
@@ -100,7 +95,6 @@ def update_profile(
         raise HTTPException(status_code=400, detail="No valid fields to update")
 
     user.updatedAt = datetime.utcnow()
-    # tidak perlu db.add(user) karena user sudah ter-attach ke session db
     db.commit()
     db.refresh(user)
 

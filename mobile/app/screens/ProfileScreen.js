@@ -235,7 +235,7 @@ export default function ProfileScreen({ onLogout }) {
             <TextInput
               style={styles.input}
               value={editedProfile.weight}
-              onChangeText={(text) => setEditedProfile({ ...editedProfile, weight: text })}
+              onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setEditedProfile({ ...editedProfile, weight: fixed })}}
               keyboardType="decimal-pad"
             />
           ) : (
@@ -249,7 +249,7 @@ export default function ProfileScreen({ onLogout }) {
             <TextInput
               style={styles.input}
               value={editedProfile.height}
-              onChangeText={(text) => setEditedProfile({ ...editedProfile, height: text })}
+              onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setEditedProfile({ ...editedProfile, height: fixed })}}
               keyboardType="decimal-pad"
             />
           ) : (
