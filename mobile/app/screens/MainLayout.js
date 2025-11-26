@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import DrawerMenu from '../components/DrawerMenu';
 import DashboardScreen from './DashboardScreen';
-import ClassificationScreen from './ClassificationScreen';
+import PredictionScreen from './PredictionScreen';
 import HealthSummaryScreen from './HealthSummaryScreen';
 import EducationScreen from './EducationScreen';
 import ProfileScreen from './ProfileScreen';
@@ -92,7 +92,7 @@ export default function MainLayout({ onLogout }) {
   const getScreenTitle = () => {
     switch (currentScreen) {
       case 'Dashboard': return 'Diabetes Risk App';
-      case 'Classification': return 'Input Data Pasien';
+      case 'Prediction': return 'Input Data User';
       case 'HealthSummary': return 'Health Summary';
       case 'Education': return 'Education';
       case 'Profile': return 'Profile';
@@ -103,7 +103,7 @@ export default function MainLayout({ onLogout }) {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'Dashboard': return <DashboardScreen />;
-      case 'Classification': return <ClassificationScreen />;
+      case 'Prediction': return <PredictionScreen />;
       case 'HealthSummary': return <HealthSummaryScreen />;
       case 'Education': return <EducationScreen />;
       case 'Profile': return <ProfileScreen user={user} onLogout={onLogout} />;

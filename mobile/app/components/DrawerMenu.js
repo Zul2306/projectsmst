@@ -6,7 +6,7 @@ import colors from '../utils/colors';
 export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen, user }) {
   const items = [
     { key: 'Dashboard', label: 'Dashboard', icon: 'grid-outline' },
-    { key: 'Classification', label: 'Klasifikasi', icon: 'create-outline' },
+    { key: 'Prediction', label: 'Prediksi', icon: 'create-outline' },
     { key: 'HealthSummary', label: 'Health Summary', icon: 'bar-chart-outline' },
     { key: 'Education', label: 'Education', icon: 'book-outline' },
   ];

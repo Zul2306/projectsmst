@@ -9,23 +9,40 @@ import {
 	Platform,
 	ScrollView,
 	Alert,
+	ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../utils/colors";
+import API_URL from "../utils/api";
 
 export default function ForgotPasswordScreen({ onNavigate }) {
 	const [email, setEmail] = useState("");
+	const [loading, setLoading] = useState(false);
 
-	const handleReset = () => {
+	const handleReset = async () => {
 		if (!email.trim()) {
-			Alert.alert("Error", "Masukkan email Anda");
+			Alert.alert("Error", "Masukkan email");
 			return;
 		}
 
-		// In a real app, call backend to send reset link
-		Alert.alert("Terkirim", "Link reset password telah dikirim ke email Anda", [
-			{ text: "OK", onPress: () => onNavigate && onNavigate('login') },
-		]);
+		setLoading(true);
+		try {
+			const res = await fetch(`${API_URL}/auth/forgot-password`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email }),
+			});
+
+			if (res.ok) {
+				onNavigate("otp", { email });
+			} else {
+				Alert.alert("Error", "Email tidak ditemukan");
+			}
+		} catch (error) {
+			Alert.alert("Error", "Terjadi kesalahan koneksi");
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -43,7 +60,7 @@ export default function ForgotPasswordScreen({ onNavigate }) {
 					</View>
 					<Text style={styles.title}>Lupa Password</Text>
 					<Text style={styles.subtitle}>
-						Masukkan email yang terdaftar. Kami akan mengirimkan instruksi untuk
+						Masukkan email yang terdaftar. Kami akan mengirimkan kode OTP untuk
 						mereset password.
 					</Text>
 				</View>
@@ -65,16 +82,28 @@ export default function ForgotPasswordScreen({ onNavigate }) {
 								onChangeText={setEmail}
 								keyboardType="email-address"
 								autoCapitalize="none"
+								editable={!loading}
 							/>
 						</View>
 					</View>
 
-					<TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-						<Text style={styles.resetButtonText}>Kirim</Text>
+					<TouchableOpacity 
+						style={[styles.resetButton, loading && styles.resetButtonDisabled]} 
+						onPress={handleReset}
+						disabled={loading}
+					>
+						{loading ? (
+							<ActivityIndicator color="#FFFFFF" />
+						) : (
+							<Text style={styles.resetButtonText}>Kirim Kode OTP</Text>
+						)}
 					</TouchableOpacity>
 
 					<View style={styles.backContainer}>
-						<TouchableOpacity onPress={() => onNavigate && onNavigate('login')}>
+						<TouchableOpacity 
+							onPress={() => onNavigate && onNavigate('login')}
+							disabled={loading}
+						>
 							<Text style={styles.backLink}>Kembali ke Masuk</Text>
 						</TouchableOpacity>
 					</View>
@@ -118,6 +147,7 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: colors.textLight,
 		textAlign: "center",
+		paddingHorizontal: 16,
 	},
 	form: {
 		width: "100%",
@@ -162,6 +192,9 @@ const styles = StyleSheet.create({
 		shadowRadius: 8,
 		elevation: 4,
 	},
+	resetButtonDisabled: {
+		opacity: 0.6,
+	},
 	resetButtonText: {
 		fontSize: 16,
 		fontWeight: "700",
@@ -176,4 +209,3 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 	},
 });
-
