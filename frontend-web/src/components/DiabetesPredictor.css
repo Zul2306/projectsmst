@@ -1,232 +1,462 @@
+/* ===========================
+   Container & Layout - Single Page
+   =========================== */
 .diabetes-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px 20px;
+  background: transparent;
+  padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .diabetes-wrapper {
-  max-width: 800px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0;
 }
 
-/* Header Styles */
+/* ===========================
+   Main Content Grid Layout
+   =========================== */
+.diabetes-main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ===========================
+   Header Styles - Compact
+   =========================== */
 .diabetes-header {
   text-align: center;
-  margin-bottom: 40px;
-  color: white;
+  margin-bottom: 24px;
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  grid-column: 1 / -1;
+}
+
+.diabetes-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
 .header-icon {
-  display: flex;
+  display: inline-flex;
   justify-content: center;
-  margin-bottom: 20px;
+  align-items: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  color: white;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .header-title {
-  font-size: 42px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 }
 
 .header-subtitle {
-  font-size: 18px;
-  opacity: 0.9;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
-/* Card Styles */
+/* ===========================
+   Card Styles - Compact
+   =========================== */
 .diabetes-card {
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  margin-bottom: 30px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  height: fit-content;
 }
 
-/* Form Styles */
+.diabetes-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #667eea 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.diabetes-card:hover::before {
+  opacity: 1;
+}
+
+.diabetes-card:hover {
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.18),
+    0 6px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   Form Styles - Compact
+   =========================== */
 .form-group {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .form-label {
   display: flex;
   align-items: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
   margin-bottom: 8px;
+  letter-spacing: -0.2px;
 }
 
 .label-icon {
   margin-right: 8px;
+  color: #667eea;
+  stroke-width: 2.5;
+  width: 16px;
+  height: 16px;
 }
 
 .form-input {
   width: 100%;
   padding: 12px 16px;
-  font-size: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
   box-sizing: border-box;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
+  background: #fafbff;
+  color: #1a1a1a;
+}
+
+.form-input::placeholder {
+  color: #aaa;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.form-input:hover {
+  border-color: #d0d0d0;
+  background: #fff;
 }
 
 .form-input:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
 }
 
-.form-hint {
-  font-size: 12px;
-  color: #666;
-  margin-top: 5px;
-}
-
-/* Error Box */
+/* ===========================
+   Error Box - Compact
+   =========================== */
 .error-box {
-  background: #fee;
+  background: linear-gradient(135deg, #fee 0%, #fdd 100%);
   border: 2px solid #fcc;
+  border-left: 4px solid #f44;
   color: #c33;
   padding: 12px 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  font-weight: 500;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.15);
 }
 
-/* Button Styles */
+.error-box::before {
+  content: "⚠️";
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+/* ===========================
+   Button Styles - Compact
+   =========================== */
 .button-group {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .btn-primary {
   flex: 1;
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 14px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(102, 126, 234, 0.45);
 }
 
-.btn-primary.btn-disabled {
-  background: #ccc;
+.btn-primary:active {
+  transform: translateY(-1px) scale(1);
+}
+
+.btn-primary:disabled {
+  background: linear-gradient(135deg, #ccc 0%, #bbb 100%);
   cursor: not-allowed;
-  box-shadow: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: none;
 }
 
 .btn-secondary {
   padding: 14px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   background: white;
-  color: #666;
-  border: 2px solid #ddd;
-  border-radius: 10px;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
 }
 
 .btn-secondary:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
 }
 
-/* Result Card Styles */
+.btn-secondary:active {
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   Result Card - Compact & Side by Side
+   =========================== */
 .result-card {
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInScale 0.5s ease-out;
+  height: fit-content;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.result-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: rotateGlow 15s linear infinite;
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .result-diabetes {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  border: 3px solid #ff5252;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .result-normal {
-  background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
-  border: 3px solid #2f9e44;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .result-title {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 800;
   color: white;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
 }
 
 .result-badge {
   display: inline-block;
-  padding: 20px 40px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.3);
+  padding: 16px 32px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
 }
 
 .result-text {
-  font-size: 36px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 900;
   margin: 0;
   color: white;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Probability Section */
+/* ===========================
+   Probability Section - Compact
+   =========================== */
 .probability-section {
-  margin-top: 30px;
+  margin-top: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .probability-label {
-  font-size: 18px;
+  font-size: 14px;
   color: white;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .probability-box {
   background: white;
-  border-radius: 15px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 20px 32px;
   display: inline-block;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.probability-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
 .probability-value {
-  font-size: 48px;
-  font-weight: bold;
-  color: #667eea;
+  font-size: 42px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: -2px;
 }
 
-/* Note Box */
+/* ===========================
+   Note Box - Compact
+   =========================== */
 .note-box {
-  margin-top: 40px;
+  margin-top: 28px;
   text-align: left;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  padding: 25px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
 .note-title {
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 15px;
-  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+}
+
+.note-title::before {
+  content: "💡";
+  margin-right: 8px;
+  font-size: 18px;
 }
 
 .note-list {
@@ -235,30 +465,152 @@
   margin: 0;
 }
 
-.note-item {
-  font-size: 14px;
+.note-list li {
+  font-size: 13px;
   color: #555;
   margin-bottom: 10px;
-  padding-left: 20px;
+  padding-left: 24px;
   position: relative;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
-/* Responsive Design */
+.note-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 6px;
+  color: #10b981;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.note-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* ===========================
+   Responsive Design
+   =========================== */
+@media (max-width: 1200px) {
+  .diabetes-main-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .diabetes-container {
+    padding: 16px;
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 768px) {
   .diabetes-container {
-    padding: 20px 15px;
+    padding: 12px;
   }
 
-  .diabetes-card {
-    padding: 25px;
+  .diabetes-header {
+    padding: 20px 16px;
+    margin-bottom: 20px;
+  }
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
   }
 
   .header-title {
-    font-size: 32px;
+    font-size: 22px;
   }
 
   .header-subtitle {
-    font-size: 16px;
+    font-size: 13px;
+  }
+
+  .diabetes-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-input {
+    padding: 11px 14px;
+    font-size: 13px;
+  }
+
+  .button-group {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 13px 20px;
+    font-size: 14px;
+  }
+
+  .result-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .result-title {
+    font-size: 20px;
+  }
+
+  .result-text {
+    font-size: 24px;
+  }
+
+  .probability-value {
+    font-size: 36px;
+  }
+
+  .probability-box {
+    padding: 16px 28px;
+  }
+
+  .note-box {
+    padding: 16px 20px;
+  }
+
+  .note-list li {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .diabetes-header {
+    padding: 16px 12px;
+  }
+
+  .header-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .diabetes-card {
+    padding: 20px 16px;
+  }
+
+  .result-badge {
+    padding: 14px 28px;
+  }
+
+  .result-text {
+    font-size: 22px;
+  }
+
+  .probability-value {
+    font-size: 32px;
   }
 
   .button-group {
@@ -268,17 +620,5 @@
   .btn-primary,
   .btn-secondary {
     width: 100%;
-  }
-
-  .result-card {
-    padding: 25px;
-  }
-
-  .result-text {
-    font-size: 28px;
-  }
-
-  .probability-value {
-    font-size: 36px;
   }
 }
