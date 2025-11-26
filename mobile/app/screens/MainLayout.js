@@ -25,9 +25,7 @@ export default function MainLayout({ onLogout }) {
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
 
-  // -------------------------------
-  // 🔥 Load profile user from backend
-  // -------------------------------
+  // Load profile user from backend
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -91,12 +89,23 @@ export default function MainLayout({ onLogout }) {
 
   const getScreenTitle = () => {
     switch (currentScreen) {
-      case 'Dashboard': return 'Diabetes Risk App';
-      case 'Prediction': return 'Input Data User';
-      case 'HealthSummary': return 'Health Summary';
-      case 'Education': return 'Education';
-      case 'Profile': return 'Profile';
-      default: return 'Diabetes Risk App';
+      case 'Dashboard': return 'Dashboard';
+      case 'Prediction': return 'Prediksi Pra-Diabetes';
+      case 'HealthSummary': return 'Ringkasan Kesehatan';
+      case 'Education': return 'Edukasi Diabetes';
+      case 'Profile': return 'Profil Saya';
+      default: return 'Dashboard';
+    }
+  };
+
+  const getScreenIcon = () => {
+    switch (currentScreen) {
+      case 'Dashboard': return 'grid';
+      case 'Prediction': return 'analytics';
+      case 'HealthSummary': return 'bar-chart';
+      case 'Education': return 'book';
+      case 'Profile': return 'person';
+      default: return 'grid';
     }
   };
 
@@ -115,17 +124,28 @@ export default function MainLayout({ onLogout }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.card} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.menuButton} onPress={() => setDrawerVisible(true)}>
-          <Ionicons name="menu" size={28} color={colors.text} />
+          <View style={styles.menuIconContainer}>
+            <Ionicons name="menu" size={26} color="#2C3E50" />
+          </View>
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>{getScreenTitle()}</Text>
+        <View style={styles.headerTitleContainer}>
+          <View style={styles.headerIconBg}>
+            <Ionicons name={getScreenIcon()} size={20} color="#4ECDC4" />
+          </View>
+          <Text style={styles.headerTitle}>{getScreenTitle()}</Text>
+        </View>
 
-        <View style={styles.menuButton} />
+        <View style={styles.headerRight}>
+          <View style={styles.healthBadge}>
+            <Ionicons name="water" size={14} color="#4ECDC4" />
+          </View>
+        </View>
       </View>
 
       {/* Content */}
@@ -145,7 +165,7 @@ export default function MainLayout({ onLogout }) {
           {/* Drawer panel */}
           <Animated.View style={[styles.drawerContainer, { transform: [{ translateX: slideAnim }] }]}>
             <DrawerMenu
-              user={user}                 // 🔥 Send user to DrawerMenu
+              user={user}
               onSelect={(screen) => {
                 setCurrentScreen(screen);
                 closeDrawer();
@@ -164,27 +184,83 @@ export default function MainLayout({ onLogout }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: {
+    flex: 1,
+    backgroundColor: "#F0F9FF",
+  },
   header: {
-    backgroundColor: colors.card,
+    backgroundColor: "#FFFFFF",
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  menuButton: { width: 40, height: 40, justifyContent: 'center' },
-  headerTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
-  content: { flex: 1 },
-  modalContainer: { flex: 1 },
+  menuButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#E8F5F5",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerIconBg: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#E8F5F5",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: "#2C3E50",
+  },
+  headerRight: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  healthBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#E8F5F5",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+  },
+  modalContainer: {
+    flex: 1,
+  },
   drawerContainer: {
     position: 'absolute',
-    left: 0, top: 0, bottom: 0,
+    left: 0,
+    top: 0,
+    bottom: 0,
     width: DRAWER_WIDTH,
-    backgroundColor: colors.card,
+    backgroundColor: "#FFFFFF",
     shadowColor: '#000',
     shadowOffset: { width: 2, height: 0 },
     shadowOpacity: 0.25,
