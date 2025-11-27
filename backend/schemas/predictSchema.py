@@ -1,15 +1,3 @@
-
-# from pydantic import BaseModel
-
-# class PredictInput(BaseModel):
-#     Pregnancies: float
-#     Glucose: float
-#     BloodPressure: float
-#     BMI: float
-#     DiabetesPedigreeFunction: float
-
-
-
 # backend/schemas/predictSchema.py
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -48,6 +36,10 @@ class PredictOut(BaseModel):
     prediction: int
     probability: float
     createdAt: datetime
+
+        # tambahkan list makanan
+    food_recommendations: list = []
+
 
     class Config:
         from_attributes = True
