@@ -37,9 +37,5 @@ class PredictOut(BaseModel):
     probability: float
     createdAt: datetime
 
-        # tambahkan list makanan
-    food_recommendations: list = []
-
-
     class Config:
         from_attributes = True
