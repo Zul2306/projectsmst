@@ -72,26 +72,39 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Decorative Background Elements */}
+        <View style={styles.decorativeCircle1} />
+        <View style={styles.decorativeCircle2} />
+
         <View style={styles.header}>
-          <Text style={styles.title}>Daftar</Text>
+          <View style={styles.iconContainer}>
+            <View style={styles.iconBackground}>
+              <Ionicons name="person-add" size={36} color="#FFFFFF" />
+            </View>
+          </View>
+          
+          <Text style={styles.title}>Daftar Sekarang</Text>
           <Text style={styles.subtitle}>
-            Buat akun baru untuk memulai perjalanan kesehatan Anda
+            Mulai perjalanan deteksi dini pra-diabetes Anda
           </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nama Lengkap</Text>
+            <Text style={styles.label}>
+              <Ionicons name="person" size={14} color={colors.primary} /> Nama Lengkap
+            </Text>
             <View style={styles.inputContainer}>
               <Ionicons
-                name="person-outline"
-                size={20}
-                color={colors.textLight}
+                name="person-circle-outline"
+                size={22}
+                color="#4ECDC4"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Masukkan nama lengkap"
+                placeholderTextColor="#B8B8B8"
                 value={fullName}
                 onChangeText={setFullName}
               />
@@ -99,17 +112,20 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>
+              <Ionicons name="mail" size={14} color={colors.primary} /> Email
+            </Text>
             <View style={styles.inputContainer}>
               <Ionicons
                 name="mail-outline"
-                size={20}
-                color={colors.textLight}
+                size={22}
+                color="#4ECDC4"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Masukkan email"
+                placeholder="contoh@email.com"
+                placeholderTextColor="#B8B8B8"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -119,17 +135,20 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>
+              <Ionicons name="at" size={14} color={colors.primary} /> Username
+            </Text>
             <View style={styles.inputContainer}>
               <Ionicons
-                name="at-outline"
-                size={20}
-                color={colors.textLight}
+                name="at-circle-outline"
+                size={22}
+                color="#4ECDC4"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Masukkan username"
+                placeholder="username_anda"
+                placeholderTextColor="#B8B8B8"
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -138,43 +157,49 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>
+              <Ionicons name="lock-closed" size={14} color={colors.primary} /> Password
+            </Text>
             <View style={styles.inputContainer}>
               <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.textLight}
+                name="shield-checkmark-outline"
+                size={22}
+                color="#4ECDC4"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Masukkan password"
+                placeholder="Minimal 6 karakter"
+                placeholderTextColor="#B8B8B8"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color={colors.textLight}
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={22}
+                  color="#4ECDC4"
                 />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Konfirmasi Password</Text>
+            <Text style={styles.label}>
+              <Ionicons name="checkmark-circle" size={14} color={colors.primary} /> Konfirmasi Password
+            </Text>
             <View style={styles.inputContainer}>
               <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.textLight}
+                name="shield-outline"
+                size={22}
+                color="#4ECDC4"
                 style={styles.inputIcon}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Konfirmasi password"
+                placeholder="Ulangi password Anda"
+                placeholderTextColor="#B8B8B8"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
@@ -183,9 +208,9 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 <Ionicons
-                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color={colors.textLight}
+                  name={showConfirmPassword ? "eye" : "eye-off"}
+                  size={22}
+                  color="#4ECDC4"
                 />
               </TouchableOpacity>
             </View>
@@ -194,14 +219,34 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
           <TouchableOpacity
             style={styles.registerButton}
             onPress={handleRegister}
+            activeOpacity={0.8}
           >
-            <Text style={styles.registerButtonText}>Daftar</Text>
+            <View style={styles.buttonContent}>
+              <Text style={styles.registerButtonText}>Buat Akun</Text>
+              <Ionicons name="checkmark-circle" size={22} color="#FFFFFF" />
+            </View>
           </TouchableOpacity>
+
+          {/* Info Card */}
+          <View style={styles.infoCard}>
+            <Ionicons name="shield-checkmark" size={20} color="#2ECC71" />
+            <Text style={styles.infoText}>
+              Data Anda aman dan terenkripsi dengan teknologi terkini
+            </Text>
+          </View>
+
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>atau</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Sudah punya akun? </Text>
             <TouchableOpacity onPress={() => onNavigate && onNavigate("login")}>
-              <Text style={styles.loginLink}>Masuk</Text>
+              <Text style={styles.loginLink}>
+                Masuk di sini <Ionicons name="log-in" size={14} />
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -213,89 +258,173 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#F0F9FF",
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
     paddingHorizontal: 24,
     paddingVertical: 40,
   },
+  decorativeCircle1: {
+    position: "absolute",
+    top: -50,
+    right: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: "#4ECDC4",
+    opacity: 0.1,
+  },
+  decorativeCircle2: {
+    position: "absolute",
+    bottom: -80,
+    left: -80,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: "#95E1D3",
+    opacity: 0.1,
+  },
   header: {
-    marginBottom: 32,
     alignItems: "center",
+    marginBottom: 32,
+  },
+  iconContainer: {
+    marginBottom: 16,
+  },
+  iconBackground: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4ECDC4",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
+    fontWeight: "800",
+    color: "#2C3E50",
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 14,
-    color: colors.textLight,
+    fontSize: 15,
+    color: "#7F8C8D",
     textAlign: "center",
+    paddingHorizontal: 20,
   },
   form: {
     width: "100%",
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 18,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 8,
+    fontWeight: "700",
+    color: "#2C3E50",
+    marginBottom: 10,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#E8F5F5",
     paddingHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   inputIcon: {
     marginRight: 12,
   },
   input: {
     flex: 1,
-    height: 50,
+    height: 54,
     fontSize: 15,
-    color: colors.text,
+    color: "#2C3E50",
+    fontWeight: "500",
   },
   registerButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    height: 52,
+    backgroundColor: "#4ECDC4",
+    borderRadius: 16,
+    height: 56,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   registerButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "800",
     color: "#FFFFFF",
+    letterSpacing: 0.5,
+  },
+  infoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F8F5",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+    gap: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#2ECC71",
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 12,
+    color: "#2C3E50",
+    fontWeight: "600",
+    lineHeight: 18,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 13,
+    color: "#95A5A6",
+    fontWeight: "600",
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 24,
+    alignItems: "center",
   },
   loginText: {
     fontSize: 14,
-    color: colors.textLight,
+    color: "#7F8C8D",
+    fontWeight: "500",
   },
   loginLink: {
     fontSize: 14,
-    color: colors.primary,
-    fontWeight: "700",
+    color: "#4ECDC4",
+    fontWeight: "800",
   },
 });

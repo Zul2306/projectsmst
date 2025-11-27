@@ -1,4 +1,3 @@
-// app/screens/PredictionScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -29,9 +28,7 @@ export default function PredictionScreen() {
   const [result, setResult] = useState(null);
   const [token, setToken] = useState(null);
 
-  // -------------------------------
   // LOAD TOKEN
-  // -------------------------------
   useEffect(() => {
     const loadToken = async () => {
       const t = await AsyncStorage.getItem("token");
@@ -40,9 +37,7 @@ export default function PredictionScreen() {
     loadToken();
   }, []);
 
-  // ---------------------------------------
   // LOAD PREDIKSI TERAKHIR SECARA OTOMATIS
-  // ---------------------------------------
   useEffect(() => {
     if (!token) return;
 
@@ -61,7 +56,6 @@ export default function PredictionScreen() {
         if (res.ok) {
           const data = await res.json();
 
-          // Isi form otomatis
           setFormData({
             pregnancies: String(data.pregnancies ?? ''),
             glucose: String(data.glucose ?? ''),
@@ -88,9 +82,7 @@ export default function PredictionScreen() {
     loadLatest();
   }, [token]);
 
-  // -----------------------
   // HANDLE SUBMIT PREDIKSI
-  // -----------------------
   const handleSubmit = async () => {
     if (!formData.pregnancies || !formData.glucose || !formData.bloodPressure || !formData.bmi || !formData.dpf) {
       Alert.alert("Error", "Mohon lengkapi semua data!");
@@ -153,15 +145,12 @@ export default function PredictionScreen() {
 
   if (initialLoad) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4ECDC4" />
+        <Text style={styles.loadingText}>Memuat data...</Text>
       </View>
     );
   }
-
-  // -------------------------------------------------------
-  // UI (tidak berubah kecuali logika di atas)
-  // -------------------------------------------------------
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -169,148 +158,448 @@ export default function PredictionScreen() {
       {/* Header */}
       <View style={styles.headerCard}>
         <View style={styles.iconContainer}>
-          <Ionicons name="pulse" size={32} color={colors.primary} />
+          <Ionicons name="analytics" size={40} color="#FFFFFF" />
         </View>
-        <Text style={styles.headerTitle}>Prediksi Diabetes</Text>
+        <Text style={styles.headerTitle}>Prediksi Pra-Diabetes</Text>
         <Text style={styles.headerSubtitle}>
-          Sistem akan memuat data prediksi terakhir Anda secara otomatis
+          Masukkan data kesehatan Anda untuk mendapatkan prediksi risiko pra-diabetes dengan AI
+        </Text>
+      </View>
+
+      {/* Info Card */}
+      <View style={styles.infoCard}>
+        <Ionicons name="information-circle" size={22} color="#3498DB" />
+        <Text style={styles.infoText}>
+          Data prediksi terakhir Anda akan dimuat secara otomatis jika tersedia
         </Text>
       </View>
 
       {/* FORM */}
       <View style={styles.formCard}>
-        {/** PREGNANCIES */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Jumlah Kehamilan</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.pregnancies}
-            onChangeText={(text) => setFormData({ ...formData, pregnancies: text })}
-            keyboardType="number-pad"
-          />
+        <View style={styles.formHeader}>
+          <Ionicons name="clipboard" size={22} color="#4ECDC4" />
+          <Text style={styles.formTitle}>Data Kesehatan</Text>
         </View>
 
-        {/** GLUCOSE */}
+        {/* PREGNANCIES */}
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Kadar Glukosa</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.glucose}
-            onChangeText={(text) => setFormData({ ...formData, glucose: text })}
-            keyboardType="number-pad"
-          />
+          <Text style={styles.label}>
+            <Ionicons name="fitness" size={12} color="#4ECDC4" /> JUMLAH KEHAMILAN
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="people" size={20} color="#4ECDC4" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={formData.pregnancies}
+              onChangeText={(text) => setFormData({ ...formData, pregnancies: text })}
+              keyboardType="number-pad"
+              placeholder="Contoh: 2"
+              placeholderTextColor="#B8B8B8"
+            />
+          </View>
         </View>
 
-        {/** BLOOD PRESSURE */}
+        {/* GLUCOSE */}
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Tekanan Darah</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.bloodPressure}
-            onChangeText={(text) => setFormData({ ...formData, bloodPressure: text })}
-            keyboardType="number-pad"
-          />
+          <Text style={styles.label}>
+            <Ionicons name="water" size={12} color="#4ECDC4" /> KADAR GLUKOSA (mg/dL)
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="water" size={20} color="#E74C3C" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={formData.glucose}
+              onChangeText={(text) => setFormData({ ...formData, glucose: text })}
+              keyboardType="number-pad"
+              placeholder="Contoh: 120"
+              placeholderTextColor="#B8B8B8"
+            />
+          </View>
         </View>
 
-        {/** BMI */}
+        {/* BLOOD PRESSURE */}
         <View style={styles.formGroup}>
-          <Text style={styles.label}>BMI</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.bmi}
-            onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setFormData({ ...formData, bmi: fixed })}}
-            keyboardType="decimal-pad"
-          />
+          <Text style={styles.label}>
+            <Ionicons name="heart" size={12} color="#4ECDC4" /> TEKANAN DARAH (mmHg)
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="heart-circle" size={20} color="#FF6B6B" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={formData.bloodPressure}
+              onChangeText={(text) => setFormData({ ...formData, bloodPressure: text })}
+              keyboardType="number-pad"
+              placeholder="Contoh: 80"
+              placeholderTextColor="#B8B8B8"
+            />
+          </View>
         </View>
 
-        {/** DPF */}
+        {/* BMI */}
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Diabetes Pedigree Function</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.dpf}
-            onChangeText={(text) => {const fixed = text.replace(/,/g, '.'); setFormData({ ...formData, dpf: fixed })}}
-            keyboardType="decimal-pad"
-          />
+          <Text style={styles.label}>
+            <Ionicons name="body" size={12} color="#4ECDC4" /> BODY MASS INDEX (BMI)
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="fitness" size={20} color="#95E1D3" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={formData.bmi}
+              onChangeText={(text) => {
+                const fixed = text.replace(/,/g, '.');
+                setFormData({ ...formData, bmi: fixed });
+              }}
+              keyboardType="decimal-pad"
+              placeholder="Contoh: 25.3"
+              placeholderTextColor="#B8B8B8"
+            />
+          </View>
+        </View>
+
+        {/* DPF */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            <Ionicons name="git-network" size={12} color="#4ECDC4" /> DIABETES PEDIGREE FUNCTION
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="git-network" size={20} color="#9B59B6" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              value={formData.dpf}
+              onChangeText={(text) => {
+                const fixed = text.replace(/,/g, '.');
+                setFormData({ ...formData, dpf: fixed });
+              }}
+              keyboardType="decimal-pad"
+              placeholder="Contoh: 0.5"
+              placeholderTextColor="#B8B8B8"
+            />
+          </View>
+          <Text style={styles.helperText}>Fungsi keturunan diabetes (0.0 - 2.5)</Text>
         </View>
 
         {/* BUTTONS */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>Prediksi Sekarang</Text>}
+          <TouchableOpacity 
+            style={styles.submitButton} 
+            onPress={handleSubmit} 
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <>
+                <Ionicons name="analytics" size={20} color="#FFFFFF" />
+                <Text style={styles.submitButtonText}>Mulai Prediksi</Text>
+              </>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-            <Text style={styles.resetButtonText}>Reset</Text>
+            <Ionicons name="refresh" size={20} color="#7F8C8D" />
+            <Text style={styles.resetButtonText}>Reset Data</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* RESULT */}
       {result && (
-        <View style={[styles.resultCard, result.prediction === 'Tidak Diabetes' ? styles.resultCardSuccess : styles.resultCardDanger]}>
-          <Text style={styles.resultTitle}>Hasil Prediksi</Text>
+        <View style={[
+          styles.resultCard,
+          result.prediction === 'Tidak Diabetes' ? styles.resultCardSuccess : styles.resultCardDanger
+        ]}>
+          <View style={styles.resultHeader}>
+            <Ionicons 
+              name={result.prediction === 'Tidak Diabetes' ? "checkmark-circle" : "warning"} 
+              size={32} 
+              color="#FFFFFF" 
+            />
+            <Text style={styles.resultTitle}>Hasil Prediksi</Text>
+          </View>
 
           <View style={styles.resultBox}>
             <Text style={styles.resultLabel}>{result.prediction}</Text>
+            <Text style={styles.resultDescription}>
+              {result.prediction === 'Tidak Diabetes' 
+                ? 'Risiko pra-diabetes Anda rendah' 
+                : 'Risiko pra-diabetes terdeteksi'}
+            </Text>
           </View>
 
-          <Text style={styles.probabilityLabel}>Probabilitas</Text>
-          <View style={styles.probabilityBox}>
-            <Text style={styles.probabilityText}>{result.probability}</Text>
+          <View style={styles.probabilityContainer}>
+            <Text style={styles.probabilityLabel}>Tingkat Kepercayaan AI</Text>
+            <View style={styles.probabilityBox}>
+              <Text style={styles.probabilityText}>{result.probability}</Text>
+            </View>
           </View>
+
+          {result.prediction === 'Diabetes' && (
+            <View style={styles.recommendationBox}>
+              <Ionicons name="medical" size={18} color="#FFFFFF" />
+              <Text style={styles.recommendationText}>
+                Konsultasikan dengan dokter untuk pemeriksaan lebih lanjut
+              </Text>
+            </View>
+          )}
         </View>
       )}
 
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  contentContainer: { padding: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: "#F0F9FF",
+  },
+  contentContainer: {
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F0F9FF",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: "#7F8C8D",
+    fontWeight: "500",
+  },
   headerCard: {
-    backgroundColor: colors.card, padding: 24, borderRadius: 16,
-    alignItems: "center", marginBottom: 16
+    backgroundColor: "#FFFFFF",
+    padding: 28,
+    borderRadius: 20,
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   iconContainer: {
-    width: 64, height: 64, borderRadius: 32,
-    backgroundColor: `${colors.primary}20`,
-    justifyContent: "center", alignItems: "center", marginBottom: 10
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4ECDC4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: colors.primary },
-  headerSubtitle: { fontSize: 14, color: colors.textLight, textAlign: "center", marginTop: 8 },
-
-  formCard: { backgroundColor: colors.card, padding: 20, borderRadius: 16 },
-  formGroup: { marginBottom: 16 },
-  label: { fontWeight: "600", marginBottom: 6, color: colors.text },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#2C3E50",
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#7F8C8D",
+    textAlign: "center",
+    lineHeight: 20,
+    paddingHorizontal: 8,
+  },
+  infoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F5F5",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    gap: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#3498DB",
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 12,
+    color: "#2C3E50",
+    fontWeight: "600",
+    lineHeight: 18,
+  },
+  formCard: {
+    backgroundColor: "#FFFFFF",
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  formHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 24,
+  },
+  formTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#2C3E50",
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#7F8C8D",
+    marginBottom: 10,
+    letterSpacing: 0.5,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0F9FF",
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#E8F5F5",
+    paddingHorizontal: 14,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
   input: {
-    borderWidth: 1, borderColor: colors.border, borderRadius: 10,
-    padding: 12, backgroundColor: colors.background, color: colors.text
+    flex: 1,
+    padding: 14,
+    fontSize: 16,
+    color: "#2C3E50",
+    fontWeight: "500",
   },
-
-  actionButtons: { marginTop: 10, gap: 12 },
+  helperText: {
+    fontSize: 11,
+    color: "#95A5A6",
+    marginTop: 6,
+    fontStyle: "italic",
+  },
+  actionButtons: {
+    marginTop: 12,
+    gap: 12,
+  },
   submitButton: {
-    backgroundColor: colors.primary, padding: 15, borderRadius: 12, alignItems: "center"
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#4ECDC4",
+    padding: 16,
+    borderRadius: 14,
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  submitButtonText: { color: "#fff", fontWeight: "700" },
+  submitButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 16,
+  },
   resetButton: {
-    padding: 15, borderWidth: 1, borderColor: colors.border,
-    borderRadius: 12, alignItems: "center"
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
+    borderRadius: 14,
+    backgroundColor: "#F0F9FF",
   },
-  resetButtonText: { color: colors.text },
-
-  resultCard: { marginTop: 20, padding: 20, borderRadius: 16 },
-  resultCardSuccess: { backgroundColor: "#4CAF50" },
-  resultCardDanger: { backgroundColor: "#F44336" },
-
-  resultTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 10 },
+  resetButtonText: {
+    color: "#7F8C8D",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  resultCard: {
+    marginTop: 20,
+    padding: 24,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  resultCardSuccess: {
+    backgroundColor: "#2ECC71",
+  },
+  resultCardDanger: {
+    backgroundColor: "#E74C3C",
+  },
+  resultHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 16,
+  },
+  resultTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "800",
+  },
   resultBox: {
-    padding: 16, backgroundColor: "rgba(255,255,255,0.2)",
-    borderRadius: 12, marginBottom: 12
+    padding: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 14,
+    marginBottom: 16,
+    alignItems: "center",
   },
-  resultLabel: { fontSize: 22, fontWeight: "700", color: "#fff" },
-  probabilityLabel: { color: "#fff", marginBottom: 6 },
-  probabilityBox: { backgroundColor: "#fff", padding: 12, borderRadius: 12 },
-  probabilityText: { color: colors.primary, fontSize: 24, fontWeight: "700" },
+  resultLabel: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    marginBottom: 6,
+  },
+  resultDescription: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    opacity: 0.9,
+  },
+  probabilityContainer: {
+    marginBottom: 16,
+  },
+  probabilityLabel: {
+    color: "#FFFFFF",
+    marginBottom: 8,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  probabilityBox: {
+    backgroundColor: "#FFFFFF",
+    padding: 16,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  probabilityText: {
+    color: "#4ECDC4",
+    fontSize: 32,
+    fontWeight: "800",
+  },
+  recommendationBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    padding: 14,
+    borderRadius: 12,
+  },
+  recommendationText: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 18,
+  },
 });

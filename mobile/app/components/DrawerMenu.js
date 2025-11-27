@@ -5,16 +5,25 @@ import colors from '../utils/colors';
 
 export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen, user }) {
   const items = [
-    { key: 'Dashboard', label: 'Dashboard', icon: 'grid-outline' },
-    { key: 'Prediction', label: 'Prediksi', icon: 'create-outline' },
-    { key: 'HealthSummary', label: 'Health Summary', icon: 'bar-chart-outline' },
-    { key: 'Education', label: 'Education', icon: 'book-outline' },
+    { key: 'Dashboard', label: 'Dashboard', icon: 'grid', description: 'Ringkasan utama' },
+    { key: 'Prediction', label: 'Prediksi', icon: 'analytics', description: 'Cek risiko diabetes' },
+    { key: 'HealthSummary', label: 'Ringkasan Kesehatan', icon: 'bar-chart', description: 'Data kesehatan Anda' },
+    { key: 'Education', label: 'Edukasi', icon: 'book', description: 'Pelajari diabetes' },
   ];
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         
+        {/* Header */}
+        <View style={styles.drawerHeader}>
+          <View style={styles.appIconContainer}>
+            <Ionicons name="water" size={28} color="#FFFFFF" />
+          </View>
+          <Text style={styles.appTitle}>Prediksi Pra-Diabetes</Text>
+          <Text style={styles.appSubtitle}>Deteksi Dini dengan AI</Text>
+        </View>
+
         {/* Profile Card */}
         <TouchableOpacity 
           style={styles.profileCard}
@@ -25,19 +34,25 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen,
           activeOpacity={0.7}
         >
           <View style={styles.avatar}>
-            <Ionicons name="person" size={28} color={colors.primary} />
+            <Ionicons name="person" size={32} color="#FFFFFF" />
           </View>
 
-          <View style={{ marginLeft: 12, flex: 1 }}>
+          <View style={styles.profileInfo}>
             <Text style={styles.name}>{user?.name || "User"}</Text>
             <Text style={styles.email}>{user?.email || "-"}</Text>
+            <View style={styles.profileBadge}>
+              <Ionicons name="checkmark-circle" size={12} color="#2ECC71" />
+              <Text style={styles.badgeText}>Aktif</Text>
+            </View>
           </View>
 
-          <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
+          <Ionicons name="chevron-forward" size={22} color="#4ECDC4" />
         </TouchableOpacity>
 
         {/* Menu Items */}
         <View style={styles.menuList}>
+          <Text style={styles.sectionTitle}>MENU UTAMA</Text>
+          
           {items.map((it) => (
             <TouchableOpacity
               key={it.key}
@@ -49,31 +64,57 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen,
                 onSelect && onSelect(it.key);
                 onClose && onClose();
               }}
+              activeOpacity={0.7}
             >
-              <View style={styles.menuIcon}>
+              <View style={[
+                styles.menuIconContainer,
+                currentScreen === it.key && styles.menuIconContainerActive
+              ]}>
                 <Ionicons 
                   name={it.icon} 
                   size={22} 
-                  color={currentScreen === it.key ? colors.primary : colors.text} 
+                  color={currentScreen === it.key ? "#4ECDC4" : "#7F8C8D"} 
                 />
               </View>
-              <Text
-                style={[
-                  styles.menuLabel,
-                  currentScreen === it.key && styles.menuLabelActive
-                ]}
-              >
-                {it.label}
-              </Text>
+              
+              <View style={styles.menuTextContainer}>
+                <Text
+                  style={[
+                    styles.menuLabel,
+                    currentScreen === it.key && styles.menuLabelActive
+                  ]}
+                >
+                  {it.label}
+                </Text>
+                <Text style={styles.menuDescription}>{it.description}</Text>
+              </View>
+
+              {currentScreen === it.key && (
+                <View style={styles.activeIndicator} />
+              )}
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Info Section */}
+        <View style={styles.infoSection}>
+          <Ionicons name="information-circle" size={18} color="#3498DB" />
+          <Text style={styles.infoText}>
+            Pantau kesehatan Anda secara rutin untuk deteksi dini pra-diabetes
+          </Text>
+        </View>
+
         {/* Logout */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={() => onLogout && onLogout()}>
-            <Ionicons name="log-out-outline" size={20} color={colors.danger} style={{ marginRight: 8 }} />
-            <Text style={styles.logoutText}>Keluar</Text>
+          <TouchableOpacity 
+            style={styles.logoutButton} 
+            onPress={() => onLogout && onLogout()}
+            activeOpacity={0.7}
+          >
+            <View style={styles.logoutIconContainer}>
+              <Ionicons name="log-out" size={20} color="#E74C3C" />
+            </View>
+            <Text style={styles.logoutText}>Keluar dari Akun</Text>
           </TouchableOpacity>
         </View>
 
@@ -85,79 +126,206 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen,
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.card,
+    backgroundColor: "#FFFFFF",
     paddingTop: 50,
-    paddingHorizontal: 16,
   },
   scroll: {
     paddingBottom: 40,
   },
+  drawerHeader: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E8F5F5",
+    marginBottom: 16,
+  },
+  appIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#4ECDC4",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  appTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: "#2C3E50",
+    marginBottom: 4,
+  },
+  appSubtitle: {
+    fontSize: 12,
+    color: "#7F8C8D",
+    fontWeight: '600',
+  },
   profileCard: {
-    backgroundColor: `${colors.primary}10`,
-    borderRadius: 12,
+    backgroundColor: "#E8F5F5",
+    borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 16,
     marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: `${colors.primary}25`,
+    backgroundColor: "#4ECDC4",
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    shadowColor: "#4ECDC4",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileInfo: {
+    marginLeft: 12,
+    flex: 1,
   },
   name: {
-    fontWeight: '700',
-    color: colors.text,
-    fontSize: 16
+    fontWeight: '800',
+    color: "#2C3E50",
+    fontSize: 16,
+    marginBottom: 2,
   },
   email: {
-    color: colors.textLight,
-    marginTop: 4,
-    fontSize: 13,
+    color: "#7F8C8D",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  profileBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: "#2ECC71",
   },
   menuList: {
-    marginTop: 8,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: "#95A5A6",
+    letterSpacing: 1,
+    marginBottom: 12,
+    marginLeft: 4,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 12,
-    borderRadius: 10,
-    marginBottom: 4,
-  },
-  menuIcon: {
-    width: 36,
-    alignItems: 'center',
-  },
-  menuLabel: {
-    color: colors.text,
-    fontSize: 15,
-    flex: 1,
+    borderRadius: 14,
+    marginBottom: 6,
+    position: 'relative',
   },
   menuItemActive: {
-    backgroundColor: `${colors.primary}15`,
+    backgroundColor: "#E8F5F5",
+  },
+  menuIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#F0F9FF",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuIconContainerActive: {
+    backgroundColor: "#FFFFFF",
+  },
+  menuTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  menuLabel: {
+    color: "#2C3E50",
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
   },
   menuLabelActive: {
-    color: colors.primary,
-    fontWeight: '600'
+    color: "#4ECDC4",
+    fontWeight: '800',
+  },
+  menuDescription: {
+    fontSize: 11,
+    color: "#95A5A6",
+  },
+  activeIndicator: {
+    position: 'absolute',
+    right: 12,
+    width: 4,
+    height: 24,
+    borderRadius: 2,
+    backgroundColor: "#4ECDC4",
+  },
+  infoSection: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: "#E8F5F5",
+    padding: 14,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 11,
+    color: "#2C3E50",
+    fontWeight: '600',
+    lineHeight: 16,
   },
   footer: {
-    marginTop: 24,
-    paddingHorizontal: 4
+    paddingHorizontal: 16,
+    marginTop: 8,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${colors.danger}15`,
-    padding: 12,
-    borderRadius: 12
+    backgroundColor: "#FFEBEE",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#FFCDD2",
+  },
+  logoutIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   logoutText: {
-    color: colors.danger,
-    fontWeight: '600'
-  }
+    color: "#E74C3C",
+    fontWeight: '700',
+    fontSize: 15,
+  },
 });
