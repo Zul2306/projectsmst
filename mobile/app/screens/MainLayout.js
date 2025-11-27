@@ -5,8 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import DrawerMenu from '../components/DrawerMenu';
 import DashboardScreen from './DashboardScreen';
 import PredictionScreen from './PredictionScreen';
-import HealthSummaryScreen from './HealthSummaryScreen';
-import EducationScreen from './EducationScreen';
+import RecommendationScreen from './RecommendationScreen';
+import SummaryScreen from './SummaryScreen';
+import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
 
 import colors from '../utils/colors';
@@ -91,8 +92,9 @@ export default function MainLayout({ onLogout }) {
     switch (currentScreen) {
       case 'Dashboard': return 'Dashboard';
       case 'Prediction': return 'Prediksi Pra-Diabetes';
-      case 'HealthSummary': return 'Ringkasan Kesehatan';
-      case 'Education': return 'Edukasi Diabetes';
+      case 'Recommendation': return 'Rekomendasi Makanan';
+      case 'Summary': return 'Ringkasan Kesehatan';
+      case 'History': return 'Riwayat Prediksi';
       case 'Profile': return 'Profil Saya';
       default: return 'Dashboard';
     }
@@ -102,8 +104,9 @@ export default function MainLayout({ onLogout }) {
     switch (currentScreen) {
       case 'Dashboard': return 'grid';
       case 'Prediction': return 'analytics';
-      case 'HealthSummary': return 'bar-chart';
-      case 'Education': return 'book';
+      case 'Recommendation': return 'restaurant';
+      case 'Summary': return 'bar-chart';
+      case 'History': return 'time';
       case 'Profile': return 'person';
       default: return 'grid';
     }
@@ -113,8 +116,9 @@ export default function MainLayout({ onLogout }) {
     switch (currentScreen) {
       case 'Dashboard': return <DashboardScreen />;
       case 'Prediction': return <PredictionScreen />;
-      case 'HealthSummary': return <HealthSummaryScreen />;
-      case 'Education': return <EducationScreen />;
+      case 'Recommendation': return <RecommendationScreen />;
+      case 'Summary': return <SummaryScreen />;
+      case 'History': return <HistoryScreen />;
       case 'Profile': return <ProfileScreen user={user} onLogout={onLogout} />;
       default: return <DashboardScreen />;
     }

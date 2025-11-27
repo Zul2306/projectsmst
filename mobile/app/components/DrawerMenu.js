@@ -7,8 +7,9 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen,
   const items = [
     { key: 'Dashboard', label: 'Dashboard', icon: 'grid', description: 'Ringkasan utama' },
     { key: 'Prediction', label: 'Prediksi', icon: 'analytics', description: 'Cek risiko diabetes' },
-    { key: 'HealthSummary', label: 'Ringkasan Kesehatan', icon: 'bar-chart', description: 'Data kesehatan Anda' },
-    { key: 'Education', label: 'Edukasi', icon: 'book', description: 'Pelajari diabetes' },
+    { key: 'Recommendation', label: 'Rekomendasi', icon: 'restaurant', description: 'Menu makanan sehat' },
+    { key: 'Summary', label: 'Ringkasan', icon: 'bar-chart', description: 'Statistik kesehatan' },
+    { key: 'History', label: 'Riwayat', icon: 'time', description: 'Histori prediksi' },
   ];
 
   return (
