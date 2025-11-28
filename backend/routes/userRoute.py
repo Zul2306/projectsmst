@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from decimal import Decimal
 from datetime import datetime
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from config.db import SessionLocal
 from models.user import User as UserModel
@@ -94,7 +95,7 @@ def update_profile(
     if not updated:
         raise HTTPException(status_code=400, detail="No valid fields to update")
 
-    user.updatedAt = datetime.utcnow()
+    user.updatedAt = datetime.now(ZoneInfo("Asia/Jakarta"))
     db.commit()
     db.refresh(user)
 

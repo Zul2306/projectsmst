@@ -23,14 +23,12 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const PASSWORD_REGEX =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
   const handleSubmit = async () => {
     if (!password.trim() || !confirm.trim()) {
       Alert.alert("Error", "Semua field harus diisi");
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert("Error", "Password minimal 6 karakter");
       return;
     }
 
@@ -39,22 +37,40 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
       return;
     }
 
+    if (!PASSWORD_REGEX.test(password)) {
+      Alert.alert(
+        "Error",
+        "Password minimal 8 karakter dan harus mengandung huruf besar, huruf kecil, angka, dan simbol"
+      );
+      return;
+    }
+
     setLoading(true);
     try {
+      const emailNorm = (email || "").toLowerCase().trim(); // email from route.params
+      // optional: enforce @gmail.com
+      if (!emailNorm.endsWith("@gmail.com")) {
+        Alert.alert("Error", "Email harus menggunakan domain @gmail.com");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`${API_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailNorm, password }),
       });
 
       if (res.ok) {
         Alert.alert("Berhasil", "Password berhasil direset", [
-          { text: "OK", onPress: () => onNavigate("login") }
+          { text: "OK", onPress: () => onNavigate("login") },
         ]);
       } else {
-        Alert.alert("Error", "Gagal reset password");
+        const err = await res.json().catch(() => ({}));
+        Alert.alert("Error", err.detail || "Gagal reset password");
       }
     } catch (error) {
+      console.log(error);
       Alert.alert("Error", "Terjadi kesalahan koneksi");
     } finally {
       setLoading(false);
@@ -80,7 +96,7 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
               <Ionicons name="lock-closed" size={40} color="#FFFFFF" />
             </View>
           </View>
-          
+
           <Text style={styles.title}>Reset Password</Text>
           <Text style={styles.subtitle}>
             Buat password baru yang kuat dan mudah diingat untuk akun Anda
@@ -90,7 +106,8 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="lock-closed" size={14} color={colors.primary} /> Password Baru
+              <Ionicons name="lock-closed" size={14} color={colors.primary} />{" "}
+              Password Baru
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -123,7 +140,12 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="checkmark-circle" size={14} color={colors.primary} /> Konfirmasi Password
+              <Ionicons
+                name="checkmark-circle"
+                size={14}
+                color={colors.primary}
+              />{" "}
+              Konfirmasi Password
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -160,12 +182,17 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoTitle}>Syarat Password:</Text>
               <Text style={styles.infoText}>• Minimal 6 karakter</Text>
-              <Text style={styles.infoText}>• Kombinasi huruf dan angka lebih aman</Text>
+              <Text style={styles.infoText}>
+                • Kombinasi huruf dan angka lebih aman
+              </Text>
             </View>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              loading && styles.submitButtonDisabled,
+            ]}
             onPress={handleSubmit}
             disabled={loading}
             activeOpacity={0.8}
@@ -187,8 +214,8 @@ export default function ResetPasswordScreen({ route, onNavigate }) {
           </View>
 
           <View style={styles.backContainer}>
-            <TouchableOpacity 
-              onPress={() => onNavigate && onNavigate('login')}
+            <TouchableOpacity
+              onPress={() => onNavigate && onNavigate("login")}
               disabled={loading}
               style={styles.backButton}
             >

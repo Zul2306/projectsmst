@@ -2,7 +2,8 @@
 from fastapi import FastAPI
 from config.db import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routes import authRoute, indexRoute, userRoute, predictRoute, recommendRoute
+from routes import authRoute, indexRoute, userRoute, predictRoute, recommendRoute, summaryRoute, dashboardRoute
+# from routes import historyRoute
 import models.user as user_model
 import models.prediction as pred_model
 
@@ -23,3 +24,6 @@ app.include_router(authRoute.router)
 app.include_router(userRoute.router)
 app.include_router(predictRoute.router)
 app.include_router(recommendRoute.router)
+app.include_router(summaryRoute.router)
+# app.include_router(historyRoute.router)
+app.include_router(dashboardRoute.router)

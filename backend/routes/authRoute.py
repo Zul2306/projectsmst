@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from argon2 import PasswordHasher, exceptions as argon2_exceptions
 from fastapi.security import APIKeyHeader
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from fastapi_mail import MessageSchema
 from dotenv import load_dotenv
 import os
@@ -44,16 +45,19 @@ def get_db():
 # ==============================
 @router.post("/register", response_model=UserOut)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(UserModel).filter(UserModel.email == user_in.email).first()
+    # normalize email to lowercase
+    email_norm = user_in.email.lower().strip()
+
+    existing = db.query(UserModel).filter(UserModel.email == email_norm).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed = ph.hash(user_in.password)
     new_user = UserModel(
         name=user_in.name,
-        email=user_in.email,
+        email=email_norm,
         password=hashed,
-        createdAt=datetime.utcnow(),
+        createdAt=datetime.now(tz=ZoneInfo("Asia/Jakarta")),
     )
     db.add(new_user)
     db.commit()
@@ -66,7 +70,10 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 # ==============================
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(UserModel).filter(UserModel.email == payload.email).first()
+    # normalize email
+    email_norm = payload.email.lower().strip()
+
+    user = db.query(UserModel).filter(UserModel.email == email_norm).first()
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -75,7 +82,7 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
     except argon2_exceptions.VerifyMismatchError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # buat token dengan exp
+    # buat token dengan exp (UTC)
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     token_payload = {
         "sub": str(user.id),
@@ -85,6 +92,7 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
     token = jwt.encode(token_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
     return {"access_token": token, "token_type": "bearer"}
+
 
 # ==============================
 # AUTH MIDDLEWARE
@@ -102,7 +110,7 @@ def get_current_user(
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id = payload.get("sub")
-    except:
+    except Exception:
         raise HTTPException(401, detail="Invalid token")
 
     user = db.get(UserModel, int(user_id))
@@ -122,7 +130,7 @@ def read_me(current_user: UserModel = Depends(get_current_user)):
 # ==============================
 @router.post("/forgot-password")
 async def forgot_password(payload: ForgotPasswordSchema, db: Session = Depends(get_db)):
-    email = payload.email
+    email = payload.email.lower().strip()
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
     if not user:
@@ -130,8 +138,9 @@ async def forgot_password(payload: ForgotPasswordSchema, db: Session = Depends(g
 
     otp = f"{random.randint(100000, 999999)}"
 
+    now_jakarta = datetime.now(tz=ZoneInfo("Asia/Jakarta"))
     user.resetPasswordToken = otp
-    user.resetTokenExpires = datetime.utcnow() + timedelta(minutes=10)
+    user.resetTokenExpires = now_jakarta + timedelta(minutes=10)
     db.commit()
 
     message = MessageSchema(
@@ -151,7 +160,7 @@ async def forgot_password(payload: ForgotPasswordSchema, db: Session = Depends(g
 # ==============================
 @router.post("/verify-reset-otp")
 def verify_reset_otp(payload: VerifyOTPSchema, db: Session = Depends(get_db)):
-    email = payload.email
+    email = payload.email.lower().strip()
     otp = payload.otp
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
@@ -161,7 +170,23 @@ def verify_reset_otp(payload: VerifyOTPSchema, db: Session = Depends(get_db)):
     if user.resetPasswordToken != otp:
         raise HTTPException(400, detail="Invalid OTP")
 
-    if user.resetTokenExpires < datetime.utcnow():
+    # Waktu sekarang (Jakarta)
+    now_jakarta = datetime.now(tz=ZoneInfo("Asia/Jakarta"))
+
+    # Ambil waktu expired dari database
+    expires_raw = user.resetTokenExpires
+
+    if not expires_raw:
+        raise HTTPException(400, detail="OTP expired")
+
+    # Jika datetime dari DB tidak punya timezone → buatkan timezone Jakarta
+    if expires_raw.tzinfo is None:
+        expires = expires_raw.replace(tzinfo=ZoneInfo("Asia/Jakarta"))
+    else:
+        expires = expires_raw
+
+    # Sekarang aman membandingkan
+    if expires < now_jakarta:
         raise HTTPException(400, detail="OTP expired")
 
     return {"message": "OTP valid"}
@@ -172,17 +197,17 @@ def verify_reset_otp(payload: VerifyOTPSchema, db: Session = Depends(get_db)):
 # ==============================
 @router.post("/reset-password")
 def reset_password(payload: ResetPasswordSchema, db: Session = Depends(get_db)):
-    email = payload.email
+    email = payload.email.lower().strip()
     password = payload.password
 
     user = db.query(UserModel).filter(UserModel.email == email).first()
     if not user:
-        raise HTTPException(404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
 
     user.password = ph.hash(password)
     user.resetPasswordToken = None
     user.resetTokenExpires = None
-    user.updatedAt = datetime.utcnow()
+    user.updatedAt = datetime.now(tz=ZoneInfo("Asia/Jakarta"))
 
     db.commit()
 

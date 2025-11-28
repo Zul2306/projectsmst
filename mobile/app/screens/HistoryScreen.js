@@ -1,3 +1,4 @@
+// app/screens/HistoryScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,133 +8,193 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../utils/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../utils/api';
 
 export default function HistoryScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [history, setHistory] = useState([]);
-
-  // Dummy data untuk preview
-  const dummyHistory = [
-    {
-      id: 1,
-      pregnancies: 2,
-      glucose: 120,
-      blood_pressure: 80,
-      bmi: 25.3,
-      dpf: 0.5,
-      prediction: 0,
-      probability: 23.5,
-      createdAt: '2024-01-15T10:30:00Z',
-    },
-    {
-      id: 2,
-      pregnancies: 3,
-      glucose: 145,
-      blood_pressure: 85,
-      bmi: 28.7,
-      dpf: 0.7,
-      prediction: 1,
-      probability: 78.2,
-      createdAt: '2024-01-14T14:20:00Z',
-    },
-    {
-      id: 3,
-      pregnancies: 1,
-      glucose: 110,
-      blood_pressure: 75,
-      bmi: 23.1,
-      dpf: 0.4,
-      prediction: 0,
-      probability: 15.8,
-      createdAt: '2024-01-10T09:15:00Z',
-    },
-  ];
+  const [limit] = useState(10); // default sesuai route backend
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [offset]);
 
-  const loadHistory = async () => {
-    setLoading(true);
-    // TODO: Implement API call
-    // Simulasi loading
-    setTimeout(() => {
-      setHistory(dummyHistory);
+  const loadHistory = async (reset = true) => {
+    if (reset) {
+      setLoading(true);
+      setOffset(0);
+    }
+
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'Token tidak ditemukan. Silakan login ulang.');
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/history/?limit=${limit}&offset=${reset ? 0 : offset}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        Alert.alert('Error', 'Sesi berakhir. Silakan login ulang.');
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.log('History fetch error', err);
+        Alert.alert('Error', err.detail || 'Gagal memuat riwayat');
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        console.log('Unexpected history response', data);
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      if (reset) {
+        setHistory(data);
+      } else {
+        setHistory((prev) => [...prev, ...data]);
+      }
+
+      // jika jumlah data < limit, berarti tidak ada lagi
+      setHasMore(data.length === limit);
+    } catch (e) {
+      console.log('loadHistory exception', e);
+      Alert.alert('Error', 'Tidak dapat terhubung ke server');
+      setHistory([]);
+    } finally {
       setLoading(false);
-    }, 1000);
+      setRefreshing(false);
+    }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadHistory();
-    setRefreshing(false);
+    await loadHistory(true);
+  };
+
+  const loadMore = async () => {
+    if (!hasMore || loading) return;
+    setOffset((prev) => prev + limit);
+    // loadHistory triggered by offset change
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return date.toLocaleDateString('id-ID', options);
+    try {
+      const date = new Date(dateString);
+      const options = {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+      return date.toLocaleDateString('id-ID', options);
+    } catch {
+      return dateString;
+    }
+  };
+
+  const fetchDetail = async (id) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'Token tidak ditemukan. Silakan login ulang.');
+        return;
+      }
+      const res = await fetch(`${API_URL}/history/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        Alert.alert('Error', err.detail || 'Gagal memuat detail');
+        return;
+      }
+
+      const item = await res.json();
+      Alert.alert('Detail Prediksi', JSON.stringify(item, null, 2));
+      // TODO: ganti Alert dengan navigasi ke detail screen jika ada
+    } catch (e) {
+      console.log('fetchDetail exception', e);
+      Alert.alert('Error', 'Tidak dapat terhubung ke server');
+    }
   };
 
   const renderHistoryItem = (item) => {
-    const isDiabetes = item.prediction === 1;
-    
+    const isDiabetes = item.prediction === 1 || item.prediction === '1' || item.prediction === 'Diabetes';
+
     return (
-      <TouchableOpacity 
-        key={item.id} 
+      <TouchableOpacity
+        key={item.id}
         style={styles.historyCard}
         activeOpacity={0.7}
       >
-        {/* Header */}
         <View style={styles.historyHeader}>
           <View style={[
             styles.resultBadge,
             isDiabetes ? styles.resultBadgeDanger : styles.resultBadgeSuccess
           ]}>
-            <Ionicons 
-              name={isDiabetes ? "warning" : "checkmark-circle"} 
-              size={16} 
-              color="#FFFFFF" 
+            <Ionicons
+              name={isDiabetes ? "warning" : "checkmark-circle"}
+              size={16}
+              color="#FFFFFF"
             />
             <Text style={styles.resultBadgeText}>
               {isDiabetes ? 'Diabetes' : 'Tidak Diabetes'}
             </Text>
           </View>
-          
+
           <Text style={styles.dateText}>
             {formatDate(item.createdAt)}
           </Text>
         </View>
 
-        {/* Probability */}
         <View style={styles.probabilitySection}>
           <Text style={styles.probabilityLabel}>Probabilitas</Text>
           <Text style={[
             styles.probabilityValue,
             { color: isDiabetes ? '#E74C3C' : '#2ECC71' }
           ]}>
-            {item.probability}%
+            {typeof item.probability === 'number' ? item.probability.toFixed(1) : item.probability}%
           </Text>
         </View>
 
-        {/* Data Summary */}
         <View style={styles.dataGrid}>
           <View style={styles.dataItem}>
             <View style={styles.dataIconContainer}>
               <Ionicons name="water" size={16} color="#E74C3C" />
             </View>
             <Text style={styles.dataLabel}>Glukosa</Text>
-            <Text style={styles.dataValue}>{item.glucose}</Text>
+            <Text style={styles.dataValue}>{item.glucose ?? '-'}</Text>
           </View>
 
           <View style={styles.dataItem}>
@@ -141,7 +202,7 @@ export default function HistoryScreen() {
               <Ionicons name="heart-circle" size={16} color="#FF6B6B" />
             </View>
             <Text style={styles.dataLabel}>TD</Text>
-            <Text style={styles.dataValue}>{item.blood_pressure}</Text>
+            <Text style={styles.dataValue}>{item.blood_pressure ?? '-'}</Text>
           </View>
 
           <View style={styles.dataItem}>
@@ -149,7 +210,7 @@ export default function HistoryScreen() {
               <Ionicons name="fitness" size={16} color="#95E1D3" />
             </View>
             <Text style={styles.dataLabel}>BMI</Text>
-            <Text style={styles.dataValue}>{item.bmi}</Text>
+            <Text style={styles.dataValue}>{item.bmi ?? '-'}</Text>
           </View>
 
           <View style={styles.dataItem}>
@@ -157,20 +218,22 @@ export default function HistoryScreen() {
               <Ionicons name="people" size={16} color="#4ECDC4" />
             </View>
             <Text style={styles.dataLabel}>Hamil</Text>
-            <Text style={styles.dataValue}>{item.pregnancies}</Text>
+            <Text style={styles.dataValue}>{item.pregnancies ?? '-'}</Text>
           </View>
         </View>
 
-        {/* View Detail Button */}
-        <TouchableOpacity style={styles.detailButton}>
+        {/* <TouchableOpacity
+          style={styles.detailButton}
+          onPress={() => fetchDetail(item.id)}
+        >
           <Text style={styles.detailButtonText}>Lihat Detail</Text>
           <Ionicons name="chevron-forward" size={16} color="#4ECDC4" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
+  if (loading && history.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4ECDC4" />
@@ -180,14 +243,18 @@ export default function HistoryScreen() {
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      onMomentumScrollEnd={() => {
+        // saat scroll mencapai bottom, coba load more
+        // Note: ini simple; kalau butuh infinite scroll lebih stabil, gunakan FlatList + onEndReached
+        if (hasMore && !loading) loadMore();
+      }}
     >
-      {/* Header Card */}
       <View style={styles.headerCard}>
         <View style={styles.headerIconContainer}>
           <Ionicons name="time" size={32} color="#FFFFFF" />
@@ -198,7 +265,6 @@ export default function HistoryScreen() {
         </Text>
       </View>
 
-      {/* Stats Summary */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Ionicons name="document-text" size={20} color="#4ECDC4" />
@@ -209,7 +275,7 @@ export default function HistoryScreen() {
         <View style={styles.statCard}>
           <Ionicons name="checkmark-circle" size={20} color="#2ECC71" />
           <Text style={styles.statValue}>
-            {history.filter(h => h.prediction === 0).length}
+            {history.filter(h => Number(h.prediction) === 0).length}
           </Text>
           <Text style={styles.statLabel}>Negatif</Text>
         </View>
@@ -217,16 +283,15 @@ export default function HistoryScreen() {
         <View style={styles.statCard}>
           <Ionicons name="warning" size={20} color="#E74C3C" />
           <Text style={styles.statValue}>
-            {history.filter(h => h.prediction === 1).length}
+            {history.filter(h => Number(h.prediction) === 1).length}
           </Text>
           <Text style={styles.statLabel}>Positif</Text>
         </View>
       </View>
 
-      {/* History List */}
       <View style={styles.historyList}>
         <Text style={styles.sectionTitle}>RIWAYAT PREDIKSI</Text>
-        
+
         {history.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="document-text-outline" size={64} color="#B8B8B8" />
