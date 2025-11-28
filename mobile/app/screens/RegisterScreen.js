@@ -17,11 +17,13 @@ import API_URL from "../utils/api";
 export default function RegisterScreen({ onNavigate, onLogin }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const PASSWORD_REGEX =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
   const handleRegister = async () => {
     if (!fullName.trim() || !email.trim() || !password.trim()) {
@@ -29,8 +31,25 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
       return;
     }
 
+    const emailNorm = email.toLowerCase().trim();
+
+    // optional: enforce @gmail.com
+    if (!emailNorm.endsWith("@gmail.com")) {
+      Alert.alert("Error", "Email harus menggunakan domain @gmail.com");
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert("Error", "Password tidak cocok");
+      return;
+    }
+
+    // password strength
+    if (!PASSWORD_REGEX.test(password)) {
+      Alert.alert(
+        "Error",
+        "Password minimal 8 karakter dan harus mengandung huruf besar, huruf kecil, angka, dan simbol"
+      );
       return;
     }
 
@@ -42,7 +61,7 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
         },
         body: JSON.stringify({
           name: fullName,
-          email: email,
+          email: emailNorm,
           password: password,
         }),
       });
@@ -55,7 +74,13 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
       }
 
       Alert.alert("Sukses", "Akun berhasil dibuat!", [
-        { text: "OK", onPress: () => onLogin && onLogin() },
+        {
+          text: "OK",
+          onPress: () => {
+            // otomatis arahkan ke login (jika ingin login langsung, Anda bisa mengirim token)
+            onNavigate && onNavigate("login");
+          },
+        },
       ]);
     } catch (error) {
       console.log(error);
@@ -82,7 +107,7 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
               <Ionicons name="person-add" size={36} color="#FFFFFF" />
             </View>
           </View>
-          
+
           <Text style={styles.title}>Daftar Sekarang</Text>
           <Text style={styles.subtitle}>
             Mulai perjalanan deteksi dini pra-diabetes Anda
@@ -92,7 +117,8 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="person" size={14} color={colors.primary} /> Nama Lengkap
+              <Ionicons name="person" size={14} color={colors.primary} /> Nama
+              Lengkap
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -124,7 +150,7 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
               />
               <TextInput
                 style={styles.input}
-                placeholder="contoh@email.com"
+                placeholder="contoh@gmail.com"
                 placeholderTextColor="#B8B8B8"
                 value={email}
                 onChangeText={setEmail}
@@ -133,32 +159,11 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
               />
             </View>
           </View>
-
+          
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="at" size={14} color={colors.primary} /> Username
-            </Text>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="at-circle-outline"
-                size={22}
-                color="#4ECDC4"
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="username_anda"
-                placeholderTextColor="#B8B8B8"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              <Ionicons name="lock-closed" size={14} color={colors.primary} /> Password
+              <Ionicons name="lock-closed" size={14} color={colors.primary} />{" "}
+              Password
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -169,7 +174,7 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Minimal 6 karakter"
+                placeholder="Minimal 8 karakter"
                 placeholderTextColor="#B8B8B8"
                 value={password}
                 onChangeText={setPassword}
@@ -187,7 +192,12 @@ export default function RegisterScreen({ onNavigate, onLogin }) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="checkmark-circle" size={14} color={colors.primary} /> Konfirmasi Password
+              <Ionicons
+                name="checkmark-circle"
+                size={14}
+                color={colors.primary}
+              />{" "}
+              Konfirmasi Password
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons

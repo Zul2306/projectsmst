@@ -7,7 +7,7 @@ import DashboardScreen from './DashboardScreen';
 import PredictionScreen from './PredictionScreen';
 import RecommendationScreen from './RecommendationScreen';
 import SummaryScreen from './SummaryScreen';
-import HistoryScreen from './HistoryScreen';
+// import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
 
 import colors from '../utils/colors';
@@ -94,7 +94,7 @@ export default function MainLayout({ onLogout }) {
       case 'Prediction': return 'Prediksi Pra-Diabetes';
       case 'Recommendation': return 'Rekomendasi Makanan';
       case 'Summary': return 'Ringkasan Kesehatan';
-      case 'History': return 'Riwayat Prediksi';
+      // case 'History': return 'Riwayat Prediksi';
       case 'Profile': return 'Profil Saya';
       default: return 'Dashboard';
     }
@@ -106,7 +106,7 @@ export default function MainLayout({ onLogout }) {
       case 'Prediction': return 'analytics';
       case 'Recommendation': return 'restaurant';
       case 'Summary': return 'bar-chart';
-      case 'History': return 'time';
+      // case 'History': return 'time';
       case 'Profile': return 'person';
       default: return 'grid';
     }
@@ -118,7 +118,7 @@ export default function MainLayout({ onLogout }) {
       case 'Prediction': return <PredictionScreen />;
       case 'Recommendation': return <RecommendationScreen />;
       case 'Summary': return <SummaryScreen />;
-      case 'History': return <HistoryScreen />;
+      // case 'History': return <HistoryScreen />;
       case 'Profile': return <ProfileScreen user={user} onLogout={onLogout} />;
       default: return <DashboardScreen />;
     }
@@ -146,9 +146,9 @@ export default function MainLayout({ onLogout }) {
         </View>
 
         <View style={styles.headerRight}>
-          <View style={styles.healthBadge}>
+          {/* <View style={styles.healthBadge}>
             <Ionicons name="water" size={14} color="#4ECDC4" />
-          </View>
+          </View> */}
         </View>
       </View>
 

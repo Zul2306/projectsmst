@@ -25,6 +25,14 @@ export default function LoginScreen({ onNavigate, onLogin }) {
       return;
     }
 
+    const emailNorm = email.toLowerCase().trim();
+
+    // optional: enforce @gmail.com
+    if (!emailNorm.endsWith("@gmail.com")) {
+      Alert.alert("Error", "Email harus menggunakan domain @gmail.com");
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -32,7 +40,7 @@ export default function LoginScreen({ onNavigate, onLogin }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
+          email: emailNorm,
           password: password,
         }),
       });
@@ -65,19 +73,19 @@ export default function LoginScreen({ onNavigate, onLogin }) {
         {/* Decorative Background Elements */}
         <View style={styles.decorativeCircle1} />
         <View style={styles.decorativeCircle2} />
-        
+
         <View style={styles.header}>
           <View style={styles.iconContainer}>
             <View style={styles.iconBackground}>
               <Ionicons name="water" size={40} color="#FFFFFF" />
             </View>
           </View>
-          
+
           <Text style={styles.title}>Prediksi Pra-Diabetes</Text>
           <Text style={styles.subtitle}>
             Deteksi dini risiko pra-diabetes dengan AI
           </Text>
-          
+
           {/* Feature Cards */}
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
@@ -109,7 +117,7 @@ export default function LoginScreen({ onNavigate, onLogin }) {
               />
               <TextInput
                 style={styles.input}
-                placeholder="contoh@email.com"
+                placeholder="contoh@gmail.com"
                 placeholderTextColor="#B8B8B8"
                 value={email}
                 onChangeText={setEmail}
@@ -121,7 +129,8 @@ export default function LoginScreen({ onNavigate, onLogin }) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="lock-closed" size={14} color={colors.primary} /> Password
+              <Ionicons name="lock-closed" size={14} color={colors.primary} />{" "}
+              Password
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -154,8 +163,8 @@ export default function LoginScreen({ onNavigate, onLogin }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.loginButton} 
+          <TouchableOpacity
+            style={styles.loginButton}
             onPress={handleLogin}
             activeOpacity={0.8}
           >
@@ -169,7 +178,8 @@ export default function LoginScreen({ onNavigate, onLogin }) {
           <View style={styles.reminderCard}>
             <Ionicons name="information-circle" size={22} color="#3498DB" />
             <Text style={styles.reminderText}>
-              Sistem AI kami dapat memprediksi risiko pra-diabetes berdasarkan data kesehatan Anda dengan tingkat akurasi tinggi
+              Sistem AI kami dapat memprediksi risiko pra-diabetes berdasarkan
+              data kesehatan Anda dengan tingkat akurasi tinggi
             </Text>
           </View>
 

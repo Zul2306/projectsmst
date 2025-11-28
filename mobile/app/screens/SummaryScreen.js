@@ -1,3 +1,4 @@
+// app/screens/SummaryScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,9 +8,12 @@ import {
   ActivityIndicator,
   RefreshControl,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../utils/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../utils/api';
 
 const { width } = Dimensions.get('window');
 
@@ -18,56 +22,91 @@ export default function SummaryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [summary, setSummary] = useState(null);
 
-  // Dummy data untuk preview
-  const dummySummary = {
-    total_predictions: 15,
-    diabetes_count: 4,
-    non_diabetes_count: 11,
-    avg_probability: 35.7,
-    avg_glucose: 125.3,
-    avg_blood_pressure: 78.5,
-    latest: {
-      id: 1,
-      prediction: 0,
-      probability: 23.5,
-      createdAt: '2024-01-15T10:30:00Z',
-    },
-  };
-
   useEffect(() => {
     loadSummary();
   }, []);
 
   const loadSummary = async () => {
     setLoading(true);
-    // TODO: Implement API call
-    // Simulasi loading
-    setTimeout(() => {
-      setSummary(dummySummary);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'Token tidak ditemukan. Silakan login ulang.');
+        setSummary(null);
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/summary/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        Alert.alert('Sesi berakhir', 'Sesi Anda telah berakhir. Silakan login kembali.');
+        setSummary(null);
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.log('Summary fetch error', err);
+        Alert.alert('Error', err.detail || 'Gagal memuat ringkasan');
+        setSummary(null);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      // normalisasi — pastikan numeric fields ada dan bertipe number
+      const normalized = {
+        total_predictions: Number(data.total_predictions) || 0,
+        diabetes_count: Number(data.diabetes_count) || 0,
+        non_diabetes_count: Number(data.non_diabetes_count) || 0,
+        avg_probability: data.avg_probability != null ? Number(data.avg_probability) : null,
+        avg_glucose: data.avg_glucose != null ? Number(data.avg_glucose) : null,
+        avg_blood_pressure: data.avg_blood_pressure != null ? Number(data.avg_blood_pressure) : null,
+        latest: data.latest || null,
+      };
+
+      setSummary(normalized);
+    } catch (e) {
+      console.log('loadSummary exception', e);
+      Alert.alert('Error', 'Tidak dapat terhubung ke server');
+      setSummary(null);
+    } finally {
       setLoading(false);
-    }, 1000);
+      setRefreshing(false);
+    }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
     await loadSummary();
-    setRefreshing(false);
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return date.toLocaleDateString('id-ID', options);
+    try {
+      const date = new Date(dateString);
+      const options = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+      return date.toLocaleDateString('id-ID', options);
+    } catch {
+      return dateString;
+    }
   };
 
   const getPercentage = (count, total) => {
-    if (total === 0) return 0;
+    if (!total || total === 0) return '0.0';
     return ((count / total) * 100).toFixed(1);
   };
 
@@ -90,12 +129,10 @@ export default function SummaryScreen() {
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       {/* Header Card */}
       <View style={styles.headerCard}>
@@ -103,9 +140,7 @@ export default function SummaryScreen() {
           <Ionicons name="bar-chart" size={32} color="#FFFFFF" />
         </View>
         <Text style={styles.headerTitle}>Ringkasan Kesehatan</Text>
-        <Text style={styles.headerSubtitle}>
-          Overview data prediksi Anda
-        </Text>
+        <Text style={styles.headerSubtitle}>Overview data prediksi Anda</Text>
       </View>
 
       {/* Total Predictions Card */}
@@ -168,7 +203,7 @@ export default function SummaryScreen() {
             </View>
             <Text style={styles.statLabel}>Glukosa</Text>
             <Text style={styles.statValue}>
-              {summary.avg_glucose?.toFixed(1) || '-'}
+              {summary.avg_glucose != null ? summary.avg_glucose.toFixed(1) : '-'}
             </Text>
             <Text style={styles.statUnit}>mg/dL</Text>
           </View>
@@ -179,7 +214,7 @@ export default function SummaryScreen() {
             </View>
             <Text style={styles.statLabel}>Tekanan Darah</Text>
             <Text style={styles.statValue}>
-              {summary.avg_blood_pressure?.toFixed(1) || '-'}
+              {summary.avg_blood_pressure != null ? summary.avg_blood_pressure.toFixed(1) : '-'}
             </Text>
             <Text style={styles.statUnit}>mmHg</Text>
           </View>
@@ -192,7 +227,7 @@ export default function SummaryScreen() {
             </View>
             <Text style={styles.statLabel}>Probabilitas</Text>
             <Text style={styles.statValue}>
-              {summary.avg_probability?.toFixed(1) || '-'}
+              {summary.avg_probability != null ? summary.avg_probability.toFixed(1) : '-'}
             </Text>
             <Text style={styles.statUnit}>%</Text>
           </View>
@@ -202,13 +237,15 @@ export default function SummaryScreen() {
               <Ionicons name="pulse" size={20} color="#9B59B6" />
             </View>
             <Text style={styles.statLabel}>Status</Text>
-            <Text style={[
-              styles.statValue,
-              { 
-                fontSize: 14,
-                color: summary.avg_probability > 50 ? '#E74C3C' : '#2ECC71' 
-              }
-            ]}>
+            <Text
+              style={[
+                styles.statValue,
+                {
+                  fontSize: 14,
+                  color: summary.avg_probability > 50 ? '#E74C3C' : '#2ECC71',
+                },
+              ]}
+            >
               {summary.avg_probability > 50 ? 'Risiko' : 'Aman'}
             </Text>
             <Text style={styles.statUnit}>Rata-rata</Text>
@@ -229,30 +266,26 @@ export default function SummaryScreen() {
           <View style={styles.latestContent}>
             <View style={styles.latestDateSection}>
               <Ionicons name="calendar" size={16} color="#7F8C8D" />
-              <Text style={styles.latestDate}>
-                {formatDate(summary.latest.createdAt)}
-              </Text>
+              <Text style={styles.latestDate}>{formatDate(summary.latest.createdAt)}</Text>
             </View>
 
             <View style={styles.latestResultSection}>
-              <View style={[
-                styles.latestResultBadge,
-                summary.latest.prediction === 1 
-                  ? styles.latestResultDanger 
-                  : styles.latestResultSuccess
-              ]}>
-                <Ionicons 
-                  name={summary.latest.prediction === 1 ? "warning" : "checkmark-circle"} 
-                  size={24} 
-                  color="#FFFFFF" 
+              <View
+                style={[
+                  styles.latestResultBadge,
+                  summary.latest.prediction === 1 ? styles.latestResultDanger : styles.latestResultSuccess,
+                ]}
+              >
+                <Ionicons
+                  name={summary.latest.prediction === 1 ? 'warning' : 'checkmark-circle'}
+                  size={24}
+                  color="#FFFFFF"
                 />
                 <View>
                   <Text style={styles.latestResultLabel}>
                     {summary.latest.prediction === 1 ? 'Diabetes' : 'Tidak Diabetes'}
                   </Text>
-                  <Text style={styles.latestResultProb}>
-                    Probabilitas: {summary.latest.probability}%
-                  </Text>
+                  <Text style={styles.latestResultProb}>Probabilitas: {summary.latest.probability}%</Text>
                 </View>
               </View>
             </View>
@@ -267,7 +300,7 @@ export default function SummaryScreen() {
           <Text style={styles.recommendationTitle}>Rekomendasi</Text>
         </View>
         <Text style={styles.recommendationText}>
-          {summary.avg_probability > 50 
+          {summary.avg_probability > 50
             ? '⚠️ Probabilitas risiko tinggi. Konsultasikan dengan dokter untuk pemeriksaan lebih lanjut.'
             : '✅ Probabilitas risiko rendah. Tetap jaga pola hidup sehat dan lakukan pemeriksaan rutin.'}
         </Text>
@@ -281,36 +314,36 @@ export default function SummaryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0F9FF",
+    backgroundColor: '#F0F9FF',
   },
   contentContainer: {
     padding: 16,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F0F9FF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F0F9FF',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: "#7F8C8D",
-    fontWeight: "500",
+    color: '#7F8C8D',
+    fontWeight: '500',
   },
   emptyText: {
     marginTop: 16,
     fontSize: 16,
-    fontWeight: "700",
-    color: "#7F8C8D",
+    fontWeight: '700',
+    color: '#7F8C8D',
   },
   headerCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 28,
     borderRadius: 20,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -320,11 +353,11 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: "#4ECDC4",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#4ECDC4',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
-    shadowColor: "#4ECDC4",
+    shadowColor: '#4ECDC4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -332,22 +365,22 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#7F8C8D",
-    textAlign: "center",
+    color: '#7F8C8D',
+    textAlign: 'center',
   },
   totalCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 24,
     borderRadius: 20,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -357,33 +390,33 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#E8F5F5",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#E8F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 12,
   },
   totalLabel: {
     fontSize: 14,
-    color: "#7F8C8D",
-    fontWeight: "600",
+    color: '#7F8C8D',
+    fontWeight: '600',
     marginBottom: 8,
   },
   totalValue: {
     fontSize: 48,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
     marginBottom: 4,
   },
   totalSubtext: {
     fontSize: 12,
-    color: "#95A5A6",
+    color: '#95A5A6',
   },
   breakdownCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 20,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -391,8 +424,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
     marginBottom: 20,
   },
   breakdownRow: {
@@ -408,38 +441,38 @@ const styles = StyleSheet.create({
   },
   breakdownValue: {
     fontSize: 32,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
     marginBottom: 4,
   },
   breakdownLabel: {
     fontSize: 13,
-    color: "#7F8C8D",
-    fontWeight: "600",
+    color: '#7F8C8D',
+    fontWeight: '600',
     marginBottom: 8,
   },
   percentageBadge: {
-    backgroundColor: "#F0F9FF",
+    backgroundColor: '#F0F9FF',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   percentageText: {
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: '800',
   },
   breakdownDivider: {
     width: 1,
     height: 80,
-    backgroundColor: "#E8F5F5",
+    backgroundColor: '#E8F5F5',
     marginHorizontal: 12,
   },
   statsCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 20,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -452,7 +485,7 @@ const styles = StyleSheet.create({
   },
   statItem: {
     flex: 1,
-    backgroundColor: "#F0F9FF",
+    backgroundColor: '#F0F9FF',
     padding: 16,
     borderRadius: 16,
     alignItems: 'center',
@@ -461,34 +494,34 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   statLabel: {
     fontSize: 11,
-    color: "#7F8C8D",
-    fontWeight: "600",
+    color: '#7F8C8D',
+    fontWeight: '600',
     marginBottom: 6,
     textAlign: 'center',
   },
   statValue: {
     fontSize: 24,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
     marginBottom: 2,
   },
   statUnit: {
     fontSize: 10,
-    color: "#95A5A6",
+    color: '#95A5A6',
   },
   latestCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 20,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -504,7 +537,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#E8F5F5",
+    backgroundColor: '#E8F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -519,8 +552,8 @@ const styles = StyleSheet.create({
   },
   latestDate: {
     fontSize: 13,
-    color: "#7F8C8D",
-    fontWeight: "600",
+    color: '#7F8C8D',
+    fontWeight: '600',
   },
   latestResultSection: {
     marginTop: 4,
@@ -533,28 +566,28 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   latestResultSuccess: {
-    backgroundColor: "#2ECC71",
+    backgroundColor: '#2ECC71',
   },
   latestResultDanger: {
-    backgroundColor: "#E74C3C",
+    backgroundColor: '#E74C3C',
   },
   latestResultLabel: {
     fontSize: 16,
-    fontWeight: "800",
-    color: "#FFFFFF",
+    fontWeight: '800',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   latestResultProb: {
     fontSize: 12,
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     opacity: 0.9,
   },
   recommendationCard: {
-    backgroundColor: "#E8F5F5",
+    backgroundColor: '#E8F5F5',
     padding: 20,
     borderRadius: 20,
     borderLeftWidth: 4,
-    borderLeftColor: "#3498DB",
+    borderLeftColor: '#3498DB',
   },
   recommendationHeader: {
     flexDirection: 'row',
@@ -564,13 +597,13 @@ const styles = StyleSheet.create({
   },
   recommendationTitle: {
     fontSize: 16,
-    fontWeight: "800",
-    color: "#2C3E50",
+    fontWeight: '800',
+    color: '#2C3E50',
   },
   recommendationText: {
     fontSize: 13,
-    color: "#2C3E50",
-    fontWeight: "600",
+    color: '#2C3E50',
+    fontWeight: '600',
     lineHeight: 20,
   },
 });

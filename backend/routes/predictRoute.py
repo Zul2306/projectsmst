@@ -10,6 +10,7 @@ from schemas.predictSchema import PredictInput, PredictOut
 from ml.predict_service import predict_diabetes
 from routes.authRoute import get_current_user
 from datetime import datetime
+from zoneinfo import ZoneInfo   # <-- tambahkan ini
 
 router = APIRouter(tags=["predict"], prefix="")
 
@@ -32,6 +33,9 @@ def create_prediction(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {e}")
 
+    # gunakan timezone Asia/Jakarta (WIB)
+    now_jakarta = datetime.now(tz=ZoneInfo("Asia/Jakarta"))
+
     pred_obj = PredictionModel(
         user_id=int(current_user.id),
         pregnancies=float(payload.Pregnancies),
@@ -41,13 +45,14 @@ def create_prediction(
         dpf=float(payload.DiabetesPedigreeFunction),
         prediction=int(result["prediction"]),
         probability=float(result["probability"]),
-        createdAt=datetime.utcnow(),
+        createdAt=now_jakarta,   # <-- pakai waktu Jakarta
     )
 
     db.add(pred_obj)
     db.commit()
     db.refresh(pred_obj)
     return pred_obj
+
 
 @router.get("/predict/latest", response_model=PredictOut)
 def get_latest_prediction(

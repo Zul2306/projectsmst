@@ -9,7 +9,7 @@ export default function DrawerMenu({ onSelect, onClose, onLogout, currentScreen,
     { key: 'Prediction', label: 'Prediksi', icon: 'analytics', description: 'Cek risiko diabetes' },
     { key: 'Recommendation', label: 'Rekomendasi', icon: 'restaurant', description: 'Menu makanan sehat' },
     { key: 'Summary', label: 'Ringkasan', icon: 'bar-chart', description: 'Statistik kesehatan' },
-    { key: 'History', label: 'Riwayat', icon: 'time', description: 'Histori prediksi' },
+    // { key: 'History', label: 'Riwayat', icon: 'time', description: 'Histori prediksi' },
   ];
 
   return (
