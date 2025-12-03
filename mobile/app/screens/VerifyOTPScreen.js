@@ -95,7 +95,7 @@ export default function VerifyOTPScreen({ route, onNavigate }) {
               <Ionicons name="shield-checkmark" size={16} color="#2ECC71" />
             </View>
           </View>
-          
+
           <Text style={styles.title}>Verifikasi OTP</Text>
           <Text style={styles.subtitle}>
             Masukkan kode 6 digit yang telah dikirim ke
@@ -106,7 +106,8 @@ export default function VerifyOTPScreen({ route, onNavigate }) {
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>
-              <Ionicons name="keypad" size={14} color={colors.primary} /> Kode OTP
+              <Ionicons name="keypad" size={14} color={colors.primary} /> Kode
+              OTP
             </Text>
             <View style={styles.inputContainer}>
               <Ionicons
@@ -132,12 +133,16 @@ export default function VerifyOTPScreen({ route, onNavigate }) {
           <View style={styles.infoCard}>
             <Ionicons name="time" size={20} color="#F39C12" />
             <Text style={styles.infoText}>
-              Kode OTP berlaku selama 5 menit. Pastikan memasukkan kode dengan benar.
+              Kode OTP berlaku selama 5 menit. Pastikan memasukkan kode dengan
+              benar.
             </Text>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.verifyButton, loading && styles.verifyButtonDisabled]} 
+          <TouchableOpacity
+            style={[
+              styles.verifyButton,
+              loading && styles.verifyButtonDisabled,
+            ]}
             onPress={handleVerify}
             disabled={loading}
             activeOpacity={0.8}
@@ -147,17 +152,18 @@ export default function VerifyOTPScreen({ route, onNavigate }) {
             ) : (
               <View style={styles.buttonContent}>
                 <Text style={styles.verifyButtonText}>Verifikasi Sekarang</Text>
-                <Ionicons name="checkmark-done-circle" size={22} color="#FFFFFF" />
+                <Ionicons
+                  name="checkmark-done-circle"
+                  size={22}
+                  color="#FFFFFF"
+                />
               </View>
             )}
           </TouchableOpacity>
 
           <View style={styles.resendContainer}>
             <Text style={styles.resendText}>Tidak menerima kode? </Text>
-            <TouchableOpacity 
-              onPress={handleResend}
-              disabled={loading}
-            >
+            <TouchableOpacity onPress={handleResend} disabled={loading}>
               <Text style={styles.resendLink}>
                 <Ionicons name="refresh-circle" size={14} /> Kirim Ulang
               </Text>
@@ -171,8 +177,8 @@ export default function VerifyOTPScreen({ route, onNavigate }) {
           </View>
 
           <View style={styles.backContainer}>
-            <TouchableOpacity 
-              onPress={() => onNavigate && onNavigate('forgot')}
+            <TouchableOpacity
+              onPress={() => onNavigate && onNavigate("forgot")}
               disabled={loading}
               style={styles.backButton}
             >
